@@ -1,0 +1,18 @@
+[project]
+name = "bulk-cv-screener"
+version = "0.1.0"
+description = "Ready-to-Use Bulk CV Screening Tool — Ruangguru AI Engineer Bootcamp Showcase"
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit>=1.50.0",
+    "google-genai>=3.5.0",
+    "pydantic>=2.0.0",
+    "pypdf>=5.0.0",
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+    "fpdf2>=2.8.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
