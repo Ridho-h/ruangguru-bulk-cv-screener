@@ -1,4 +1,4 @@
-"""Komponen visual SaaS HR-Tech (CSS, Match Pills, SVG Donut Gauges, AI Recommendation Card)."""
+"""Komponen visual SaaS HR-Tech minimal (CSS, Match Pills, SVG Donut Gauges, Recommendation Card)."""
 
 from __future__ import annotations
 
@@ -9,141 +9,164 @@ import pandas as pd
 
 from screener_engine import ScreenedCandidate
 
+SVG_CHECK = (
+    '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-label="Recommended">'
+    '<path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="#0D9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    "</svg>"
+)
+SVG_CROSS = (
+    '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-label="Not recommended">'
+    '<path d="M4.5 4.5L11.5 11.5M11.5 4.5L4.5 11.5" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>'
+    "</svg>"
+)
+
 
 def get_saas_css() -> str:
-    """Stylesheet modern bergaya SaaS HR-Tech (putih bersih, card floating, badge pastel, aksen teal)."""
+    """Stylesheet bersih dan minimal bergaya SaaS HR-Tech."""
     return """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    html, body, .stApp {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     .stApp {
-        background-color: #F7F9FC;
+        background-color: #F8FAFC;
     }
     .block-container {
-        padding-top: 1.5rem !important;
+        padding-top: 1.4rem !important;
         padding-bottom: 2.5rem !important;
-        max-width: 1420px !important;
+        max-width: 1380px !important;
     }
-    [data-testid="stDataFrame"] {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 6px;
-        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
-    }
-    .saas-hero {
-        background: linear-gradient(135deg, #FFFFFF 0%, #F0FDFA 100%);
-        border: 1px solid #E2E8F0;
-        border-radius: 18px;
-        padding: 22px 28px;
+    .page-header {
+        padding-bottom: 14px;
         margin-bottom: 18px;
-        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+        border-bottom: 1px solid #E2E8F0;
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        gap: 16px;
+        align-items: baseline;
+        gap: 12px;
         flex-wrap: wrap;
     }
-    .saas-kicker {
-        font-size: 12px;
+    .page-title {
+        font-size: 24px;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #00A8B5;
-        margin-bottom: 4px;
-    }
-    .saas-title {
-        font-size: 26px;
-        font-weight: 800;
-        color: #1B2A4A;
+        color: #0F172A;
         margin: 0;
-        line-height: 1.2;
+        letter-spacing: -0.02em;
     }
-    .saas-subtitle {
-        font-size: 14px;
-        color: #475569;
-        margin-top: 5px;
+    .page-sub {
+        font-size: 13.5px;
+        color: #64748B;
+        margin-top: 4px;
     }
-    .saas-badges {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-    .saas-chip {
-        background: #FFFFFF;
-        border: 1px solid #CBD5E1;
-        color: #334155;
-        padding: 5px 12px;
-        border-radius: 999px;
+    .role-tag {
         font-size: 12px;
         font-weight: 600;
+        color: #0F766E;
+        background: #F0FDFA;
+        border: 1px solid #CCFBF1;
+        padding: 4px 12px;
+        border-radius: 999px;
     }
-    .top-hire-banner {
-        background: linear-gradient(135deg, #1B2A4A 0%, #0F3D56 100%);
-        color: #FFFFFF;
-        border-radius: 16px;
-        padding: 20px 26px;
-        margin: 10px 0 20px 0;
+    .summary-strip {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-left: 4px solid #00A8B5;
+        border-radius: 12px;
+        padding: 16px 22px;
+        margin: 12px 0 20px 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 18px;
         flex-wrap: wrap;
-        box-shadow: 0 10px 28px rgba(27, 42, 74, 0.14);
     }
-    .top-hire-label {
+    .summary-kicker {
         font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.09em;
+        font-weight: 600;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: #5EEAD4;
-        margin-bottom: 4px;
+        color: #64748B;
+        margin-bottom: 3px;
     }
-    .top-hire-name {
-        font-size: 21px;
-        font-weight: 800;
-        color: #FFFFFF;
-        margin: 0;
+    .summary-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #0F172A;
     }
-    .top-hire-summary {
-        font-size: 13.5px;
-        color: #CBD5E1;
+    .summary-loc {
+        font-size: 13px;
+        font-weight: 500;
+        color: #64748B;
+    }
+    .summary-note {
+        font-size: 13px;
+        color: #475569;
         margin-top: 4px;
-        max-width: 720px;
+        max-width: 680px;
     }
-    .top-hire-stats {
+    .summary-metrics {
         display: flex;
-        gap: 14px;
+        gap: 12px;
         align-items: center;
     }
-    .stat-pill {
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        padding: 10px 16px;
+    .metric-box {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        padding: 8px 14px;
         text-align: center;
-        min-width: 96px;
+        min-width: 90px;
     }
-    .stat-val {
-        font-size: 20px;
-        font-weight: 800;
-        color: #FFFFFF;
-        line-height: 1.1;
+    .metric-val {
+        font-size: 17px;
+        font-weight: 700;
+        color: #0F172A;
+        line-height: 1.15;
     }
-    .stat-lbl {
+    .metric-lbl {
         font-size: 11px;
-        color: #94A3B8;
+        color: #64748B;
         margin-top: 2px;
+    }
+    .section-heading {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0F172A;
+        margin: 4px 0 10px 0;
+    }
+    .tbl-head {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748B;
+        padding: 4px 2px 6px 2px;
+    }
+    .tbl-cell-name {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #0F172A;
+    }
+    .tbl-cell-name.active {
+        color: #0E7490;
+        font-weight: 700;
+    }
+    .tbl-cell-loc {
+        font-size: 13px;
+        color: #475569;
+    }
+    .tbl-row-sep {
+        border: none;
+        border-top: 1px solid #F1F5F9;
+        margin: 6px 0;
     }
     .rec-card {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        border-radius: 18px;
+        border-radius: 14px;
         padding: 22px 24px;
-        box-shadow: 0 6px 24px rgba(15, 23, 42, 0.05);
     }
     .rec-header {
         display: flex;
@@ -152,7 +175,7 @@ def get_saas_css() -> str:
         gap: 14px;
         padding-bottom: 16px;
         border-bottom: 1px solid #F1F5F9;
-        margin-bottom: 16px;
+        margin-bottom: 18px;
     }
     .rec-identity {
         display: flex;
@@ -160,13 +183,13 @@ def get_saas_css() -> str:
         gap: 12px;
     }
     .avatar-circle {
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #00A8B5, #0E7490);
+        background: #0F172A;
         color: #FFFFFF;
-        font-weight: 800;
-        font-size: 17px;
+        font-weight: 700;
+        font-size: 15px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -175,13 +198,13 @@ def get_saas_css() -> str:
     .rec-kicker {
         font-size: 12px;
         color: #64748B;
-        font-weight: 600;
+        font-weight: 500;
     }
     .rec-name {
-        font-size: 19px;
-        font-weight: 800;
-        color: #1B2A4A;
-        line-height: 1.2;
+        font-size: 18px;
+        font-weight: 700;
+        color: #0F172A;
+        line-height: 1.25;
     }
     .rec-loc {
         font-size: 12.5px;
@@ -197,13 +220,13 @@ def get_saas_css() -> str:
     .gauge-box {
         background: #F8FAFC;
         border: 1px solid #E2E8F0;
-        border-radius: 14px;
+        border-radius: 12px;
         padding: 12px 10px;
         text-align: center;
     }
     .gauge-label {
         font-size: 12px;
-        font-weight: 600;
+        font-weight: 500;
         color: #64748B;
         margin-bottom: 8px;
     }
@@ -214,22 +237,13 @@ def get_saas_css() -> str:
         gap: 8px;
     }
     .gauge-pct {
-        font-size: 20px;
-        font-weight: 800;
-        color: #1B2A4A;
-    }
-    .summary-quote {
-        background: #F0FDFA;
-        border-left: 3.5px solid #00A8B5;
-        padding: 11px 14px;
-        border-radius: 0 10px 10px 0;
-        font-size: 13.5px;
-        color: #1E293B;
-        margin-bottom: 16px;
+        font-size: 19px;
+        font-weight: 700;
+        color: #0F172A;
     }
     .rec-body-grid {
         display: grid;
-        grid-template-columns: 1.08fr 1fr;
+        grid-template-columns: 1.05fr 1fr;
         gap: 20px;
         align-items: start;
     }
@@ -238,30 +252,15 @@ def get_saas_css() -> str:
             grid-template-columns: 1fr;
         }
     }
-    .tbl-head {
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #64748B;
-        padding: 4px 2px 6px 2px;
-    }
-    .tbl-cell-name {
-        font-size: 14px;
-        font-weight: 700;
-        color: #1B2A4A;
-    }
-    .tbl-cell-name.active {
-        color: #0E7490;
-    }
-    .tbl-cell-loc {
+    .summary-quote {
+        background: #F8FAFC;
+        border-left: 3px solid #00A8B5;
+        padding: 10px 14px;
+        border-radius: 0 8px 8px 0;
         font-size: 13px;
-        color: #475569;
-    }
-    .tbl-row-sep {
-        border: none;
-        border-top: 1px solid #F1F5F9;
-        margin: 6px 0;
+        color: #1E293B;
+        margin-bottom: 14px;
+        line-height: 1.5;
     }
     .two-col-mini {
         display: flex;
@@ -269,28 +268,30 @@ def get_saas_css() -> str:
         gap: 10px;
     }
     .mini-box {
-        background: #F8FAFC;
+        background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        border-radius: 12px;
+        border-radius: 10px;
         padding: 11px 14px;
     }
     .mini-title {
-        font-size: 12.5px;
+        font-size: 12px;
         font-weight: 700;
-        color: #1B2A4A;
-        margin-bottom: 5px;
+        color: #0F172A;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 6px;
     }
     .mini-list {
         margin: 0;
-        padding-left: 18px;
+        padding-left: 17px;
         font-size: 13px;
         color: #475569;
-        line-height: 1.5;
+        line-height: 1.55;
     }
     .focus-title {
-        font-size: 14px;
-        font-weight: 800;
-        color: #1B2A4A;
+        font-size: 13px;
+        font-weight: 700;
+        color: #0F172A;
         margin-bottom: 10px;
     }
     .focus-item {
@@ -299,7 +300,7 @@ def get_saas_css() -> str:
         gap: 10px;
         background: #F0F9FF;
         border: 1px solid #E0F2FE;
-        border-radius: 11px;
+        border-radius: 10px;
         padding: 10px 12px;
         margin-bottom: 8px;
         font-size: 13px;
@@ -314,7 +315,7 @@ def get_saas_css() -> str:
         border: 1px solid #BAE6FD;
         color: #0369A1;
         font-size: 12px;
-        font-weight: 800;
+        font-weight: 700;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -322,76 +323,60 @@ def get_saas_css() -> str:
     }
     .pill {
         display: inline-block;
-        padding: 4px 11px;
+        padding: 3px 10px;
         border-radius: 999px;
         font-size: 12px;
-        font-weight: 700;
-        line-height: 1.2;
+        font-weight: 600;
+        line-height: 1.3;
     }
     .pill-high { background: #DCFCE7; color: #15803D; }
     .pill-medium { background: #FEF3C7; color: #B45309; }
     .pill-low { background: #FEE2E2; color: #B91C1C; }
-    .pill-stage { background: #EDE9FE; color: #6D28D9; }
+    .pill-stage { background: #F3E8FF; color: #6D28D9; }
     .pill-rec { background: #CCFBF1; color: #0F766E; }
-    .cand-table-wrap {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 14px 16px;
-        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
-    }
-    table.cand-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 13px;
-    }
-    table.cand-table th {
-        text-align: left;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #64748B;
-        padding: 10px 8px;
-        border-bottom: 1.5px solid #E2E8F0;
-    }
-    table.cand-table td {
-        padding: 11px 8px;
-        border-bottom: 1px solid #F1F5F9;
-        color: #1E293B;
-        vertical-align: middle;
-    }
-    table.cand-table tr.selected-row {
-        background: #F0FDFA;
-    }
     .score-badge {
         display: inline-block;
         padding: 3px 9px;
-        border-radius: 8px;
-        font-weight: 800;
+        border-radius: 7px;
+        font-weight: 700;
         font-size: 12.5px;
+    }
+    .empty-state {
+        background: #FFFFFF;
+        border: 1px dashed #CBD5E1;
+        border-radius: 12px;
+        padding: 28px 20px;
+        text-align: center;
+        color: #64748B;
+        font-size: 13.5px;
+        margin-top: 8px;
     }
     </style>
     """
 
 
 def _compact_html(raw: str) -> str:
-    """Hapus indentasi & baris kosong agar CommonMark Streamlit tidak pernah mengubah HTML menjadi <pre><code>."""
+    """Hapus indentasi dan baris kosong agar CommonMark tidak merender HTML sebagai code block."""
     return "\n".join(line.strip() for line in raw.splitlines() if line.strip())
 
 
 def _safe_inline(text: str) -> str:
-    """Escape HTML dan normalisasi newline menjadi spasi agar aman di dalam blok HTML."""
+    """Escape HTML dan normalisasi newline menjadi spasi."""
     return html.escape(" ".join((text or "").split()))
 
 
 def render_match_pill(match_level: str) -> str:
     level = match_level if match_level in ("High", "Medium", "Low") else "Low"
-    css_class = f"pill-{level.lower()}"
-    return f'<span class="pill {css_class}">{html.escape(level)}</span>'
+    return f'<span class="pill pill-{level.lower()}">{html.escape(level)}</span>'
+
+
+def render_recommended_icon(recommended: bool) -> str:
+    svg = SVG_CHECK if recommended else SVG_CROSS
+    return f'<div style="display:flex;justify-content:center;align-items:center;">{svg}</div>'
 
 
 def render_donut_gauge(label: str, percent: int, color: str = "#00A8B5") -> str:
-    """Render 1 SVG circular donut progress gauge dengan clamp 0..100 dan escaping HTML aman."""
+    """Render 1 SVG circular progress gauge dengan clamp 0..100."""
     clamped = max(0, min(100, int(percent)))
     radius = 15.0
     circumference = 2.0 * math.pi * radius
@@ -404,9 +389,9 @@ def render_donut_gauge(label: str, percent: int, color: str = "#00A8B5") -> str:
         <div class="gauge-box">
           <div class="gauge-label">{safe_label}</div>
           <div class="gauge-inline">
-            <svg width="38" height="38" viewBox="0 0 38 38" role="img" aria-label="{safe_label} {clamped}%">
-              <circle cx="19" cy="19" r="{radius:.1f}" fill="none" stroke="#E2E8F0" stroke-width="4.2" />
-              <circle cx="19" cy="19" r="{radius:.1f}" fill="none" stroke="{safe_color}" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="{circumference:.2f}" stroke-dashoffset="{dashoffset:.2f}" transform="rotate(-90 19 19)" />
+            <svg width="36" height="36" viewBox="0 0 38 38" role="img" aria-label="{safe_label} {clamped}%">
+              <circle cx="19" cy="19" r="{radius:.1f}" fill="none" stroke="#E2E8F0" stroke-width="4" />
+              <circle cx="19" cy="19" r="{radius:.1f}" fill="none" stroke="{safe_color}" stroke-width="4" stroke-linecap="round" stroke-dasharray="{circumference:.2f}" stroke-dashoffset="{dashoffset:.2f}" transform="rotate(-90 19 19)" />
             </svg>
             <span class="gauge-pct">{clamped}%</span>
           </div>
@@ -428,87 +413,43 @@ def render_top_hire_banner(
     top_candidate: ScreenedCandidate,
     total_candidates: int,
     elapsed_seconds: float,
+    recommended_count: int | None = None,
 ) -> str:
     ev = top_candidate.evaluation
     safe_name = _safe_inline(ev.candidate_name)
     safe_summary = _safe_inline(ev.one_line_summary)
     safe_loc = _safe_inline(ev.location)
+    rec_text = (
+        f"{recommended_count}/{total_candidates}"
+        if recommended_count is not None
+        else f"{total_candidates} CV"
+    )
+    rec_label = "Direkomendasikan" if recommended_count is not None else "Disaring"
 
     return _compact_html(
         f"""
-        <div class="top-hire-banner">
+        <div class="summary-strip">
           <div>
-            <div class="top-hire-label">🏆 Rekomendasi Terbaik untuk Direkrut (Top Candidate #1)</div>
-            <div class="top-hire-name">{safe_name} · <span style="font-weight:500;font-size:14px;color:#94A3B8">{safe_loc}</span></div>
-            <div class="top-hire-summary">{safe_summary}</div>
+            <div class="summary-kicker">Kandidat Teratas</div>
+            <div><span class="summary-name">{safe_name}</span> <span class="summary-loc">· {safe_loc}</span></div>
+            <div class="summary-note">{safe_summary}</div>
           </div>
-          <div class="top-hire-stats">
-            <div class="stat-pill">
-              <div class="stat-val" style="color:#5EEAD4">{ev.overall_score}/100</div>
-              <div class="stat-lbl">Top Score</div>
+          <div class="summary-metrics">
+            <div class="metric-box">
+              <div class="metric-val" style="color:#0F766E">{ev.overall_score}/100</div>
+              <div class="metric-lbl">Skor Tertinggi</div>
             </div>
-            <div class="stat-pill">
-              <div class="stat-val">{total_candidates} CV</div>
-              <div class="stat-lbl">Disaring</div>
+            <div class="metric-box">
+              <div class="metric-val">{rec_text}</div>
+              <div class="metric-lbl">{rec_label}</div>
             </div>
-            <div class="stat-pill">
-              <div class="stat-val">{elapsed_seconds:.1f} dtk</div>
-              <div class="stat-lbl">Waktu Total</div>
+            <div class="metric-box">
+              <div class="metric-val">{elapsed_seconds:.1f} dtk</div>
+              <div class="metric-lbl">Durasi</div>
             </div>
           </div>
         </div>
         """
-    )
-
-
-def build_styled_candidates_df(candidates: list[ScreenedCandidate]):
-    """Bangun Pandas Styler bergaya SaaS untuk tabel st.dataframe yang bisa diklik langsung per baris."""
-    rows = []
-    for item in candidates:
-        ev = item.evaluation
-        rows.append(
-            {
-                "Nama Kandidat": ev.candidate_name,
-                "Tahap": item.stage,
-                "Lokasi": ev.location,
-                "Match": item.match_level,
-                "Score": ev.overall_score,
-                "Rec.": "✓" if ev.recommended else "✕",
-            }
-        )
-
-    df = pd.DataFrame(
-        rows,
-        columns=["Nama Kandidat", "Tahap", "Lokasi", "Match", "Score", "Rec."],
-    )
-
-    def _style_match(val: str) -> str:
-        if val == "High":
-            return "background-color: #DCFCE7; color: #15803D; font-weight: 700;"
-        if val == "Medium":
-            return "background-color: #FEF3C7; color: #B45309; font-weight: 700;"
-        return "background-color: #FEE2E2; color: #B91C1C; font-weight: 700;"
-
-    def _style_score(val: int) -> str:
-        if val >= 75:
-            return "color: #15803D; font-weight: 800;"
-        if val >= 50:
-            return "color: #B45309; font-weight: 800;"
-        return "color: #B91C1C; font-weight: 800;"
-
-    def _style_rec(val: str) -> str:
-        if val == "✓":
-            return "color: #0D9488; font-weight: 800; text-align: center;"
-        return "color: #EF4444; font-weight: 800; text-align: center;"
-
-    def _style_stage(_: str) -> str:
-        return "background-color: #F3E8FF; color: #6D28D9; font-weight: 600;"
-
-    return (
-        df.style.map(_style_match, subset=["Match"])
-        .map(_style_score, subset=["Score"])
-        .map(_style_rec, subset=["Rec."])
-        .map(_style_stage, subset=["Tahap"])
     )
 
 
@@ -516,7 +457,7 @@ def render_candidates_table_html(
     candidates: list[ScreenedCandidate],
     selected_filename: str | None = None,
 ) -> str:
-    """Render tabel ranking kandidat bergaya SaaS (Nama, Stage, Lokasi, Match, Score, Recommended)."""
+    """Helper HTML tabel kandidat untuk kebutuhan pengujian/ekspor."""
     rows: list[str] = []
     for item in candidates:
         ev = item.evaluation
@@ -524,50 +465,49 @@ def render_candidates_table_html(
         row_cls = ' class="selected-row"' if is_sel else ""
         pill_html = render_match_pill(item.match_level)
         score_cls = f"pill-{item.match_level.lower()}"
-        rec_icon = (
-            '<span style="color:#0D9488;font-weight:800;font-size:15px;">✓</span>'
-            if ev.recommended
-            else '<span style="color:#EF4444;font-weight:800;font-size:15px;">✕</span>'
-        )
         rows.append(
             f'<tr{row_cls}>'
             f'<td><strong>{_safe_inline(ev.candidate_name)}</strong></td>'
             f'<td><span class="pill pill-stage">{_safe_inline(item.stage)}</span></td>'
-            f'<td style="color:#475569;">{_safe_inline(ev.location)}</td>'
+            f'<td>{_safe_inline(ev.location)}</td>'
             f'<td>{pill_html}</td>'
             f'<td><span class="score-badge {score_cls}">{ev.overall_score}</span></td>'
-            f'<td style="text-align:center;">{rec_icon}</td>'
+            f'<td>{render_recommended_icon(ev.recommended)}</td>'
             f'</tr>'
         )
-
-    body = "\n".join(rows) if rows else (
-        '<tr><td colspan="6" style="text-align:center;color:#64748B;padding:24px;">Tidak ada kandidat yang cocok dengan filter.</td></tr>'
-    )
+    body = "\n".join(rows) if rows else '<tr><td colspan="6">Tidak ada kandidat.</td></tr>'
     return _compact_html(
         f"""
-        <div class="cand-table-wrap">
-          <table class="cand-table">
+        <div>
+          <table>
             <thead>
-              <tr>
-                <th>Nama Kandidat</th>
-                <th>Tahap</th>
-                <th>Lokasi</th>
-                <th>Match</th>
-                <th>Score</th>
-                <th style="text-align:center;">Recommended</th>
-              </tr>
+              <tr><th>Nama</th><th>Tahap</th><th>Lokasi</th><th>Match</th><th>Score</th><th>Recommended</th></tr>
             </thead>
-            <tbody>
-              {body}
-            </tbody>
+            <tbody>{body}</tbody>
           </table>
         </div>
         """
     )
 
 
+def build_styled_candidates_df(candidates: list[ScreenedCandidate]):
+    """Helper Pandas DataFrame terformat untuk ekspor atau tampilan alternatif."""
+    rows = [
+        {
+            "Nama Kandidat": item.evaluation.candidate_name,
+            "Tahap": item.stage,
+            "Lokasi": item.evaluation.location,
+            "Match": item.match_level,
+            "Score": item.evaluation.overall_score,
+            "Recommended": "Ya" if item.evaluation.recommended else "Tidak",
+        }
+        for item in candidates
+    ]
+    return pd.DataFrame(rows)
+
+
 def render_recommendation_card(candidate: ScreenedCandidate) -> str:
-    """Render kartu detail AI Recommendation (persis referensi video: 3 donut gauges + 3 Interview Focus Areas)."""
+    """Render kartu AI Recommendation bersih (3 donut gauges + ringkasan + 3 Interview Focus Areas)."""
     ev = candidate.evaluation
     safe_name = _safe_inline(ev.candidate_name)
     safe_loc = _safe_inline(ev.location)
@@ -596,9 +536,9 @@ def render_recommendation_card(candidate: ScreenedCandidate) -> str:
     )
 
     rec_badge = (
-        '<span class="pill pill-rec">✓ Recommended</span>'
+        '<span class="pill pill-rec">Recommended</span>'
         if ev.recommended
-        else '<span class="pill pill-low">Belum Direkomendasikan</span>'
+        else '<span class="pill pill-low">Not Recommended</span>'
     )
 
     return _compact_html(
@@ -608,9 +548,9 @@ def render_recommendation_card(candidate: ScreenedCandidate) -> str:
             <div class="rec-identity">
               <div class="avatar-circle">{initials}</div>
               <div>
-                <div class="rec-kicker">AI Recommendation · Overall Score {ev.overall_score}/100</div>
+                <div class="rec-kicker">Skor Keseluruhan {ev.overall_score}/100</div>
                 <div class="rec-name">{safe_name}</div>
-                <div class="rec-loc">📍 {safe_loc} · RAG Similarity {candidate.rag_similarity:.0%}</div>
+                <div class="rec-loc">{safe_loc} · Kemiripan Profil {candidate.rag_similarity:.0%}</div>
               </div>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
@@ -624,15 +564,15 @@ def render_recommendation_card(candidate: ScreenedCandidate) -> str:
           <div class="rec-body-grid">
             <div>
               <div class="summary-quote">
-                <strong>Ringkasan AI:</strong> {safe_summary}
+                <strong>Ringkasan:</strong> {safe_summary}
               </div>
               <div class="two-col-mini">
                 <div class="mini-box">
-                  <div class="mini-title">✅ Keunggulan Utama</div>
+                  <div class="mini-title">Kelebihan Utama</div>
                   <ul class="mini-list">{strengths_li}</ul>
                 </div>
                 <div class="mini-box">
-                  <div class="mini-title">⚠️ Celah / Perlu Verifikasi</div>
+                  <div class="mini-title">Celah &amp; Catatan</div>
                   <ul class="mini-list">{gaps_li}</ul>
                 </div>
               </div>

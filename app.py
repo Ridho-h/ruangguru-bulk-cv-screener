@@ -1,4 +1,4 @@
-"""Ready-to-Use Bulk CV Screening Tool — Streamlit SaaS App (Ruangguru AI Engineer Bootcamp Showcase)."""
+"""Bulk CV Screening — Aplikasi Streamlit untuk menyaring kandidat berdasarkan kriteria posisi."""
 
 from __future__ import annotations
 
@@ -22,14 +22,14 @@ from ui_components import (
     get_saas_css,
     render_match_pill,
     render_recommendation_card,
+    render_recommended_icon,
     render_top_hire_banner,
 )
 
 SAMPLE_DIR = Path(__file__).resolve().parent / "sample_cvs"
 
 st.set_page_config(
-    page_title="AI Bulk CV Screening Tool — Ruangguru AI Engineer Bootcamp",
-    page_icon="🎯",
+    page_title="Bulk CV Screening",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -63,7 +63,7 @@ def _init_session_state() -> None:
     st.session_state.setdefault("role_title", ROLE_PRESETS[default_preset]["role_title"])
     st.session_state.setdefault("criteria_text", ROLE_PRESETS[default_preset]["criteria"])
     st.session_state.setdefault("must_have_text", ROLE_PRESETS[default_preset]["must_have"])
-    st.session_state.setdefault("company_name", "Tim Rekrutmen Perusahaan")
+    st.session_state.setdefault("company_name", "Tim Rekrutmen")
     st.session_state.setdefault("use_sample_cvs", False)
     st.session_state.setdefault("uploader_key", 0)
     st.session_state.setdefault("report", None)
@@ -82,96 +82,87 @@ def _on_preset_change() -> None:
 _init_session_state()
 
 # ---------------------------------------------------------------------------
-# Sidebar: Role Criteria & Secure API Key Configuration
+# Sidebar: Role Criteria & API Key
 # ---------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### ⚙️ Konfigurasi Screening")
+    st.markdown("#### Kriteria Posisi")
 
-    preset_options = list(ROLE_PRESETS.keys()) + ["Kustom (Isi Sendiri)"]
+    preset_options = list(ROLE_PRESETS.keys()) + ["Kustom"]
     st.selectbox(
-        "Preset Role Perusahaan",
+        "Template Role",
         options=preset_options,
         key="preset_name",
         on_change=_on_preset_change,
     )
-    role_title = st.text_input("Nama Posisi Target", key="role_title")
-    criteria_text = st.text_area("Kriteria Role", key="criteria_text", height=180)
+    role_title = st.text_input("Nama Posisi", key="role_title")
+    criteria_text = st.text_area("Kriteria Penilaian", key="criteria_text", height=180)
     must_have_text = st.text_area(
-        "Syarat Wajib (Must-Have)",
+        "Syarat Wajib (Opsional)",
         key="must_have_text",
-        height=75,
-        help="Opsional — kandidat yang tidak memenuhi syarat wajib utama akan diberi skor lebih ketat.",
+        height=72,
     )
-    company_name = st.text_input("Nama Perusahaan (untuk Draft Undangan)", key="company_name")
+    company_name = st.text_input("Nama Perusahaan", key="company_name")
 
     st.divider()
-    st.markdown("### 🔐 Koneksi Gemini API")
+    st.markdown("#### Koneksi API")
     resolved_key, key_source = _resolve_api_key()
     if key_source in ("secrets", "env"):
-        source_label = "Streamlit Secrets" if key_source == "secrets" else "Environment Variable"
-        st.success(f"API Key aktif via **{source_label}** (aman & tersembunyi saat rekam layar).")
+        source_label = "Secrets" if key_source == "secrets" else "Environment"
+        st.caption(f"API Key terhubung ({source_label}).")
         active_api_key = resolved_key
     else:
         active_api_key = st.text_input(
             "Gemini API Key",
             type="password",
-            placeholder="Tempel API Key di sini (otomatis disensor ••••)",
-            help="Tips: Simpan di .streamlit/secrets.toml agar tidak perlu input lagi dan tidak pernah muncul di layar.",
+            placeholder="Masukkan API Key",
         ).strip()
         if not active_api_key:
-            st.caption("Ambil API Key gratis di [Google AI Studio](https://aistudio.google.com/apikey).")
+            st.caption("Dapatkan API Key di [Google AI Studio](https://aistudio.google.com/apikey).")
 
-    st.caption(f"Engine: `{DEFAULT_REASONING_MODEL}` + RAG `gemini-embedding-001`")
+    st.caption(f"Model: `{DEFAULT_REASONING_MODEL}`")
 
 # ---------------------------------------------------------------------------
-# Main Hero Header
+# Page Header (Minimal, Clean SaaS)
 # ---------------------------------------------------------------------------
+safe_role = _safe_inline(role_title or "Posisi Target")
 st.markdown(
-    """
-    <div class="saas-hero">
+    f"""
+    <div class="page-header">
       <div>
-        <div class="saas-kicker">Ready-to-Use HR-Tech AI Solution · AI Engineer Bootcamp Ruangguru</div>
-        <h1 class="saas-title">AI Bulk CV Screening Tool</h1>
-        <div class="saas-subtitle">
-          Unggah puluhan CV kandidat sekaligus, terapkan kriteria spesifik perusahaan, dan dapatkan ranking serta rekomendasi kandidat terbaik dalam hitungan detik.
-        </div>
+        <h1 class="page-title">Bulk CV Screening</h1>
+        <div class="page-sub">Saring beberapa CV kandidat sekaligus berdasarkan kriteria posisi dan syarat wajib perusahaan.</div>
       </div>
-      <div class="saas-badges">
-        <span class="saas-chip">⚡ Streamlit SaaS UI</span>
-        <span class="saas-chip">🔍 RAG Embeddings</span>
-        <span class="saas-chip">🤖 Parallel AI Agent</span>
-      </div>
+      <span class="role-tag">Posisi: {safe_role}</span>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
 # ---------------------------------------------------------------------------
-# Step 1: Bulk Multi-PDF Upload & Instant Sample Loader
+# Step 1: Upload Resumes
 # ---------------------------------------------------------------------------
-upload_col, action_col = st.columns([3.2, 1.3], gap="medium")
+upload_col, action_col = st.columns([3.4, 1.2], gap="medium")
 
 with upload_col:
     uploaded_files = st.file_uploader(
-        "Unggah Banyak CV Kandidat Sekaligus (Format PDF — Drag & Drop)",
+        "Unggah CV kandidat (PDF)",
         type=["pdf"],
         accept_multiple_files=True,
         key=f"cv_uploader_{st.session_state['uploader_key']}",
-        help="Tarik beberapa file CV PDF dari Windows Explorer sekaligus (atau coba folder sample_cvs/ yang sudah disediakan).",
     )
     if uploaded_files:
         st.session_state["use_sample_cvs"] = False
 
 with action_col:
     st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-    if st.button("📂 Muat 6 Sample CV PDF", width="stretch"):
+    if st.button("Muat 6 CV Contoh", width="stretch"):
         st.session_state["use_sample_cvs"] = True
         st.session_state["uploader_key"] += 1
         st.session_state["report"] = None
         st.session_state["selected_filename"] = None
         st.session_state["show_invite_for"] = None
         st.rerun()
-    if st.button("🔄 Reset Hasil", width="stretch"):
+    if st.button("Reset", width="stretch"):
         st.session_state["use_sample_cvs"] = False
         st.session_state["uploader_key"] += 1
         st.session_state["report"] = None
@@ -179,7 +170,6 @@ with action_col:
         st.session_state["show_invite_for"] = None
         st.rerun()
 
-# Assemble active PDF batch
 active_files: list[tuple[str, bytes]] = []
 if uploaded_files:
     active_files = [(f.name, f.getvalue()) for f in uploaded_files]
@@ -187,12 +177,13 @@ elif st.session_state["use_sample_cvs"]:
     active_files = _load_sample_pdf_files()
 
 if active_files:
-    names_preview = " · ".join(f"`{name}`" for name, _ in active_files[:6])
+    names_preview = ", ".join(f"`{name}`" for name, _ in active_files[:6])
     extra_note = f" (+{len(active_files) - 6} lainnya)" if len(active_files) > 6 else ""
-    st.info(f"📄 **{len(active_files)} CV siap disaring:** {names_preview}{extra_note}")
+    st.caption(f"{len(active_files)} file siap disaring: {names_preview}{extra_note}")
 
+run_label = f"Mulai Screening ({len(active_files)} CV)" if active_files else "Mulai Screening"
 run_screening = st.button(
-    f"⚡ Mulai Bulk Screening AI ({len(active_files)} CV)" if active_files else "⚡ Mulai Bulk Screening AI",
+    run_label,
     type="primary",
     width="stretch",
     disabled=len(active_files) == 0,
@@ -200,17 +191,13 @@ run_screening = st.button(
 
 if run_screening:
     if not active_api_key:
-        st.error(
-            "Gemini API Key belum terdeteksi. Isi di `.streamlit/secrets.toml` atau masukkan pada sidebar kiri."
-        )
+        st.error("API Key belum diisi. Tambahkan di .streamlit/secrets.toml atau masukkan di sidebar.")
     else:
-        progress_bar = st.progress(0, text="Menyiapkan ekstraksi multi-PDF & RAG embeddings...")
-        status_text = st.empty()
+        progress_bar = st.progress(0, text="Memproses file PDF...")
 
         def _update_progress(done: int, total: int, message: str) -> None:
             pct = int((done / max(total, 1)) * 100)
             progress_bar.progress(min(pct, 100), text=message)
-            status_text.caption(f"⏱️ {message}")
 
         try:
             client = create_gemini_client(active_api_key)
@@ -223,8 +210,7 @@ if run_screening:
                 max_workers=4,
                 progress_callback=_update_progress,
             )
-            progress_bar.progress(100, text="✅ Bulk screening selesai!")
-            status_text.empty()
+            progress_bar.empty()
             st.session_state["report"] = report
             st.session_state["selected_filename"] = (
                 report.candidates[0].filename if report.candidates else None
@@ -232,57 +218,54 @@ if run_screening:
             st.session_state["show_invite_for"] = None
         except Exception as exc:
             progress_bar.empty()
-            status_text.empty()
-            st.error(f"Gagal menjalankan bulk screening: {exc}")
+            st.error(f"Gagal memproses screening: {exc}")
 
 # ---------------------------------------------------------------------------
-# Step 2 & 3: Candidates Ranking Dashboard & AI Recommendation Card
+# Step 2 & 3: Candidates Table (Top, Bounded Height) + AI Recommendation (Below)
 # ---------------------------------------------------------------------------
 report: BulkScreeningReport | None = st.session_state.get("report")
 
 if report is not None:
     if report.failed_files:
-        with st.expander(f"⚠️ {len(report.failed_files)} file tidak dapat diproses (klik untuk detail)"):
+        with st.expander(f"{len(report.failed_files)} file tidak dapat diproses"):
             for item in report.failed_files:
-                st.warning(f"**{item.filename}**: {item.reason}")
+                st.warning(f"{item.filename}: {item.reason}")
 
     if not report.candidates:
-        st.warning("Belum ada kandidat yang berhasil dievaluasi dari batch PDF ini.")
+        st.warning("Tidak ada kandidat yang berhasil dievaluasi dari file yang diunggah.")
     else:
-        # Top Hire Spotlight Banner
-        top_candidate = report.candidates[0]
+        rec_count = sum(1 for c in report.candidates if c.evaluation.recommended)
         st.markdown(
             render_top_hire_banner(
-                top_candidate=top_candidate,
+                top_candidate=report.candidates[0],
                 total_candidates=len(report.candidates),
                 elapsed_seconds=report.elapsed_seconds,
+                recommended_count=rec_count,
             ),
             unsafe_allow_html=True,
         )
 
-        # -------------------------------------------------------------------
-        # Section 1: Full-Width Candidates Table (Bounded Height + Right Detail Column)
-        # -------------------------------------------------------------------
+        # Section 1: Full-Width Candidates Table
         hdr_l, hdr_r = st.columns([1.4, 2.6], vertical_alignment="bottom")
         with hdr_l:
-            st.markdown("#### 👥 Candidates")
+            st.markdown('<div class="section-heading">Candidates</div>', unsafe_allow_html=True)
         with hdr_r:
             f1, f2, f3 = st.columns([1.8, 1.15, 0.95])
             with f1:
                 search_query = st.text_input(
                     "Cari kandidat",
-                    placeholder="🔍 Cari nama atau lokasi...",
+                    placeholder="Cari nama atau lokasi...",
                     label_visibility="collapsed",
                 ).strip().lower()
             with f2:
                 match_filter = st.selectbox(
-                    "Filter Match",
-                    options=["Semua", "Recommended ✓", "High", "Medium", "Low"],
+                    "Filter",
+                    options=["Semua", "Recommended", "High", "Medium", "Low"],
                     label_visibility="collapsed",
                 )
             with f3:
                 st.download_button(
-                    "⬇️ Export CSV",
+                    "Export CSV",
                     data=results_to_csv_bytes(report),
                     file_name=safe_csv_filename(report.role_title),
                     mime="text/csv",
@@ -297,7 +280,7 @@ if report is not None:
                 and search_query not in ev.location.lower()
             ):
                 continue
-            if match_filter == "Recommended ✓" and not ev.recommended:
+            if match_filter == "Recommended" and not ev.recommended:
                 continue
             if match_filter in ("High", "Medium", "Low") and item.match_level != match_filter:
                 continue
@@ -306,10 +289,9 @@ if report is not None:
         if filtered and st.session_state.get("selected_filename") not in {c.filename for c in filtered}:
             st.session_state["selected_filename"] = filtered[0].filename
 
-        col_ratios = [2.2, 1.0, 1.45, 0.9, 0.75, 1.05, 1.15]
+        col_ratios = [2.2, 1.0, 1.5, 0.9, 0.75, 1.05, 1.1]
 
         with st.container(border=True):
-            # Table Header Row
             h_cols = st.columns(col_ratios, vertical_alignment="center")
             headers = [
                 ("Nama Kandidat", "left"),
@@ -325,13 +307,15 @@ if report is not None:
                     f'<div class="tbl-head" style="text-align:{align};">{title}</div>',
                     unsafe_allow_html=True,
                 )
-            st.markdown('<hr style="border:none;border-top:1.5px solid #E2E8F0;margin:2px 0 8px 0;">', unsafe_allow_html=True)
+            st.markdown(
+                '<hr style="border:none;border-top:1.5px solid #E2E8F0;margin:2px 0 8px 0;">',
+                unsafe_allow_html=True,
+            )
 
             if not filtered:
-                st.info("Tidak ada kandidat yang cocok dengan filter pencarian saat ini.")
+                st.info("Tidak ada kandidat yang cocok dengan filter saat ini.")
             else:
-                # Bounded scrollable body (maks tinggi 330px agar tidak terlalu panjang saat upload banyak CV)
-                body_height = min(330, max(92, len(filtered) * 62))
+                body_height = min(330, max(92, len(filtered) * 60))
                 with st.container(height=body_height, border=False):
                     for idx, item in enumerate(filtered):
                         ev = item.evaluation
@@ -339,9 +323,8 @@ if report is not None:
                         r_cols = st.columns(col_ratios, vertical_alignment="center")
 
                         name_cls = "tbl-cell-name active" if is_selected else "tbl-cell-name"
-                        active_dot = "● " if is_selected else ""
                         r_cols[0].markdown(
-                            f'<div class="{name_cls}">{active_dot}{_safe_inline(ev.candidate_name)}</div>',
+                            f'<div class="{name_cls}">{_safe_inline(ev.candidate_name)}</div>',
                             unsafe_allow_html=True,
                         )
                         r_cols[1].markdown(
@@ -358,14 +341,9 @@ if report is not None:
                             f'<span class="score-badge {score_cls}">{ev.overall_score}</span>',
                             unsafe_allow_html=True,
                         )
-                        rec_html = (
-                            '<div style="text-align:center;color:#0D9488;font-weight:800;font-size:16px;">✓</div>'
-                            if ev.recommended
-                            else '<div style="text-align:center;color:#EF4444;font-weight:800;font-size:16px;">✕</div>'
-                        )
-                        r_cols[5].markdown(rec_html, unsafe_allow_html=True)
+                        r_cols[5].markdown(render_recommended_icon(ev.recommended), unsafe_allow_html=True)
 
-                        btn_label = "✓ Dipilih" if is_selected else "Lihat Detail"
+                        btn_label = "Aktif" if is_selected else "Detail"
                         btn_type = "primary" if is_selected else "secondary"
                         if r_cols[6].button(
                             btn_label,
@@ -379,14 +357,12 @@ if report is not None:
                         if idx < len(filtered) - 1:
                             st.markdown('<hr class="tbl-row-sep">', unsafe_allow_html=True)
 
-        # -------------------------------------------------------------------
-        # Section 2: Full-Width AI Recommendation Details Card Under the Table
-        # -------------------------------------------------------------------
+        # Section 2: Full-Width AI Recommendation Under the Table
         st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-        st.markdown("#### ✨ AI Recommendation")
+        st.markdown('<div class="section-heading">AI Recommendation</div>', unsafe_allow_html=True)
 
         if not filtered:
-            st.info("Ubah filter pencarian untuk melihat detail kandidat.")
+            st.info("Ubah filter untuk melihat detail kandidat.")
         else:
             selected_obj = next(
                 (c for c in filtered if c.filename == st.session_state.get("selected_filename")),
@@ -395,32 +371,21 @@ if report is not None:
             st.markdown(render_recommendation_card(selected_obj), unsafe_allow_html=True)
 
             st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-            cta_col, _ = st.columns([1.2, 2.0])
+            cta_col, _ = st.columns([1.2, 2.2])
             with cta_col:
-                if st.button("📅 Buat Draft Undangan Interview", type="primary", width="stretch"):
+                if st.button("Buat Draft Undangan Interview", type="primary", width="stretch"):
                     st.session_state["show_invite_for"] = selected_obj.filename
 
             if st.session_state.get("show_invite_for") == selected_obj.filename:
                 invite_text = generate_interview_invite(
                     candidate=selected_obj,
                     role_title=report.role_title,
-                    company_name=company_name.strip() or "Tim Rekrutmen Perusahaan",
+                    company_name=company_name.strip() or "Tim Rekrutmen",
                 )
-                st.markdown("##### ✉️ Draft Undangan Siap Salin (WhatsApp / Email)")
+                st.caption("Draft Undangan Interview (siap salin untuk email atau pesan):")
                 st.code(invite_text, language="markdown")
 else:
     st.markdown(
-        """
-        <div style="background:#FFFFFF;border:1px dashed #CBD5E1;border-radius:16px;padding:30px;text-align:center;color:#475569;margin-top:8px;">
-          <div style="font-size:28px;margin-bottom:8px;">📄 ➜ 🤖 ➜ 🏆</div>
-          <div style="font-size:16px;font-weight:700;color:#1B2A4A;margin-bottom:6px;">
-            Siap Menyaring Puluhan CV dalam Hitungan Detik
-          </div>
-          <div style="font-size:13.5px;max-width:600px;margin:0 auto;">
-            Tarik beberapa file CV PDF ke area unggah di atas — atau klik <strong>📂 Muat 6 Sample CV PDF</strong>
-            untuk langsung melihat ranking kandidat, skor <em>Job Match / Experience / Technical Skills</em>, dan rekomendasi interview.
-          </div>
-        </div>
-        """,
+        '<div class="empty-state">Unggah beberapa file CV PDF di atas atau klik <strong>Muat 6 CV Contoh</strong> untuk memulai proses screening.</div>',
         unsafe_allow_html=True,
     )

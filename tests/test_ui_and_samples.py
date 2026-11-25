@@ -203,9 +203,28 @@ def test_html_components_have_no_commonmark_indented_code_blocks_and_app_uses_wi
 
 
 def test_app_uses_right_detail_button_table_and_stacked_recommendation_layout():
+    import re
+
     app_src = (SAMPLE_DIR.parent / "app.py").read_text(encoding="utf-8")
+    ui_src = (SAMPLE_DIR.parent / "ui_components.py").read_text(encoding="utf-8")
+
     assert "Pilih kandidat untuk melihat" not in app_src
     assert 'selection_mode="single-row"' not in app_src
-    assert "Lihat Detail" in app_src
+    assert '"Detail"' in app_src
     assert "st.container(height=" in app_src
-    assert app_src.index("#### 👥 Candidates") < app_src.index("#### ✨ AI Recommendation")
+    assert app_src.index("Candidates") < app_src.index("AI Recommendation")
+
+    # Zero decorative emojis and zero AI-slop promotional copy in UI files
+    emoji_re = re.compile(r"[\U0001F300-\U0001FAFF\u2600-\u26FF\u2702-\u27B0]")
+    for fname, src in (("app.py", app_src), ("ui_components.py", ui_src)):
+        found = emoji_re.findall(src)
+        assert not found, f"Emoji tidak perlu masih ada di {fname}: {found}"
+        for slop in (
+            "Ready-to-Use HR-Tech",
+            "AI Engineer Bootcamp",
+            "Hitungan Detik",
+            "Top Candidate #1",
+            "Streamlit SaaS UI",
+            "Parallel AI Agent",
+        ):
+            assert slop.lower() not in src.lower(), f"Copywriting AI slop masih ada di {fname}: {slop}"
