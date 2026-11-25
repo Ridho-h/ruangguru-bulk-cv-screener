@@ -1,0 +1,339 @@
+"use client";
+
+import { useCallback, useState } from "react";
+import { AlertCircle, X } from "lucide-react";
+import { CandidateDrawer } from "@/components/CandidateDrawer";
+import { CandidatesTable } from "@/components/CandidatesTable";
+import { CriteriaDrawer } from "@/components/CriteriaDrawer";
+import { TopBar } from "@/components/TopBar";
+import { UploadBar, type StagedCvFile } from "@/components/UploadBar";
+import { resultsToCsv, safeCsvFilename } from "@/lib/export";
+import { ROLE_PRESETS } from "@/lib/presets";
+import type {
+  BulkScreeningReport,
+  FailedFile,
+  ScreenedCandidate,
+} from "@/lib/types";
+
+const DEFAULT_PRESET = ROLE_PRESETS[0];
+const MAX_STAGED_FILES = 30;
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+
+export default function ScreeningWorkspacePage() {
+  const [selectedPresetId, setSelectedPresetId] = useState<string>(
+    DEFAULT_PRESET.id,
+  );
+  const [roleTitle, setRoleTitle] = useState<string>(DEFAULT_PRESET.roleTitle);
+  const [companyName, setCompanyName] = useState<string>(
+    DEFAULT_PRESET.companyName,
+  );
+  const [criteriaText, setCriteriaText] = useState<string>(
+    DEFAULT_PRESET.criteriaText,
+  );
+  const [mustHaveText, setMustHaveText] = useState<string>(
+    DEFAULT_PRESET.mustHaveText,
+  );
+
+  const [stagedFiles, setStagedFiles] = useState<StagedCvFile[]>([]);
+  const [totalBundledSamples, setTotalBundledSamples] = useState<number>(6);
+  const [isLoadingSamples, setIsLoadingSamples] = useState(false);
+  const [isScreening, setIsScreening] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [report, setReport] = useState<BulkScreeningReport | null>(null);
+  const [selectedCandidate, setSelectedCandidate] =
+    useState<ScreenedCandidate | null>(null);
+  const [criteriaOpen, setCriteriaOpen] = useState(false);
+
+  const handleSelectPreset = useCallback((presetId: string) => {
+    const found = ROLE_PRESETS.find((p) => p.id === presetId);
+    if (!found) return;
+    setSelectedPresetId(found.id);
+    setRoleTitle(found.roleTitle);
+    setCompanyName(found.companyName);
+    setCriteriaText(found.criteriaText);
+    setMustHaveText(found.mustHaveText);
+  }, []);
+
+  const handleAddFiles = useCallback((incoming: FileList | File[]) => {
+    const fileArray = Array.from(incoming);
+    const warnings: string[] = [];
+
+    const validPdfs: File[] = [];
+    for (const file of fileArray) {
+      if (!file.name.toLowerCase().endsWith(".pdf")) {
+        warnings.push(`${file.name} bukan PDF`);
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        warnings.push(`${file.name} melebihi 10 MB`);
+        continue;
+      }
+      validPdfs.push(file);
+    }
+
+    setStagedFiles((prev) => {
+      const remainingSlots = Math.max(0, MAX_STAGED_FILES - prev.length);
+      if (validPdfs.length > remainingSlots) {
+        warnings.push(
+          `batas maksimal ${MAX_STAGED_FILES} file tercapai (sebagian file dilewati)`,
+        );
+      }
+      const accepted = validPdfs.slice(0, remainingSlots);
+      const additions: StagedCvFile[] = accepted.map((file, idx) => ({
+        id: `upload-${Date.now()}-${idx}-${file.name}`,
+        name: file.name,
+        sizeBytes: file.size,
+        source: "upload",
+        file,
+      }));
+      return [...prev, ...additions];
+    });
+
+    if (warnings.length > 0) {
+      setErrorMessage(`Sebagian file tidak ditambahkan: ${warnings.join("; ")}.`);
+    } else {
+      setErrorMessage(null);
+    }
+  }, []);
+
+  const handleRemoveFile = useCallback((id: string) => {
+    setStagedFiles((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  const handleLoadSamples = useCallback(async () => {
+    setIsLoadingSamples(true);
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/samples");
+      if (!res.ok) {
+        throw new Error("Gagal mengambil daftar 6 CV contoh.");
+      }
+      const data = (await res.json()) as {
+        samples: Array<{ name: string; url: string; sizeBytes: number }>;
+      };
+      setTotalBundledSamples(data.samples.length);
+      setStagedFiles(
+        data.samples.map((item) => ({
+          id: `sample-${item.name}`,
+          name: item.name,
+          sizeBytes: item.sizeBytes,
+          source: "sample",
+          sampleUrl: item.url,
+        })),
+      );
+    } catch (err) {
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : "Gagal memuat daftar CV contoh.",
+      );
+    } finally {
+      setIsLoadingSamples(false);
+    }
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setStagedFiles([]);
+    setReport(null);
+    setSelectedCandidate(null);
+    setErrorMessage(null);
+  }, []);
+
+  const handleStartScreening = useCallback(async () => {
+    if (stagedFiles.length === 0 || isScreening) return;
+
+    setIsScreening(true);
+    setErrorMessage(null);
+    setSelectedCandidate(null);
+    setReport(null);
+
+    try {
+      const formData = new FormData();
+      formData.set("roleTitle", roleTitle.trim());
+      formData.set("criteriaText", criteriaText.trim());
+      formData.set("mustHaveText", mustHaveText.trim());
+
+      const allFromSamples =
+        stagedFiles.every((f) => f.source === "sample") &&
+        stagedFiles.length === totalBundledSamples;
+
+      if (allFromSamples) {
+        formData.set("useSamples", "true");
+      } else {
+        for (const item of stagedFiles) {
+          if (item.source === "upload" && item.file) {
+            formData.append("files", item.file, item.name);
+          } else if (item.source === "sample" && item.sampleUrl) {
+            const sampleRes = await fetch(item.sampleUrl);
+            if (!sampleRes.ok) {
+              throw new Error(`Gagal memuat file contoh ${item.name}.`);
+            }
+            const blob = await sampleRes.blob();
+            formData.append(
+              "files",
+              new File([blob], item.name, { type: "application/pdf" }),
+              item.name,
+            );
+          }
+        }
+      }
+
+      const res = await fetch("/api/screen", {
+        method: "POST",
+        body: formData,
+      });
+
+      let payload: (BulkScreeningReport & { error?: string; failedFiles?: FailedFile[] }) | null =
+        null;
+      try {
+        payload = (await res.json()) as BulkScreeningReport & {
+          error?: string;
+          failedFiles?: FailedFile[];
+        };
+      } catch {
+        throw new Error(
+          res.status === 413
+            ? "Total ukuran file terlalu besar untuk diproses dalam satu sesi. Kurangi jumlah atau ukuran PDF."
+            : "Server melebihi batas waktu atau tidak mengembalikan respons JSON. Coba ulangi dengan jumlah CV lebih sedikit.",
+        );
+      }
+
+      if (!res.ok) {
+        const failedDetail =
+          payload?.failedFiles && payload.failedFiles.length > 0
+            ? ` (${payload.failedFiles
+                .slice(0, 3)
+                .map((f) => `${f.filename}: ${f.reason}`)
+                .join("; ")})`
+            : "";
+        throw new Error(
+          `${payload?.error || "Gagal memproses screening CV di server."}${failedDetail}`,
+        );
+      }
+
+      setReport(payload);
+    } catch (err) {
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat memproses screening CV.",
+      );
+    } finally {
+      setIsScreening(false);
+    }
+  }, [
+    stagedFiles,
+    isScreening,
+    roleTitle,
+    criteriaText,
+    mustHaveText,
+    totalBundledSamples,
+  ]);
+
+  const handleExportCsv = useCallback(() => {
+    if (!report) return;
+    const csv = resultsToCsv(report);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = safeCsvFilename(report.roleTitle);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [report]);
+
+  return (
+    <div className="min-h-screen bg-[#FFFFFF] text-[#0F172A]">
+      <TopBar
+        presets={ROLE_PRESETS}
+        selectedPresetId={selectedPresetId}
+        roleTitle={roleTitle}
+        onSelectPreset={handleSelectPreset}
+        onOpenCriteria={() => setCriteriaOpen(true)}
+        canExport={Boolean(report && report.candidates.length > 0 && !isScreening)}
+        onExportCsv={handleExportCsv}
+      />
+
+      <UploadBar
+        roleTitle={roleTitle}
+        stagedFiles={stagedFiles}
+        isLoadingSamples={isLoadingSamples}
+        isScreening={isScreening}
+        onAddFiles={handleAddFiles}
+        onRemoveFile={handleRemoveFile}
+        onLoadSamples={handleLoadSamples}
+        onReset={handleReset}
+        onStartScreening={handleStartScreening}
+      />
+
+      {errorMessage ? (
+        <div className="mx-auto max-w-[1280px] px-4 pt-4 sm:px-6">
+          <div
+            role="alert"
+            className="flex items-start justify-between gap-3 rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-[13px] text-[#B91C1C]"
+          >
+            <div className="flex items-start gap-2">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.75} />
+              <span>{errorMessage}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setErrorMessage(null)}
+              aria-label="Tutup pesan kesalahan"
+              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-[#B91C1C] hover:bg-[#FEE2E2]"
+            >
+              <X className="h-3.5 w-3.5" strokeWidth={1.75} />
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      <CandidatesTable
+        report={report}
+        isScreening={isScreening}
+        stagedCount={stagedFiles.length}
+        roleTitle={report?.roleTitle ?? roleTitle}
+        selectedCandidateId={
+          selectedCandidate ? selectedCandidate.id || selectedCandidate.filename : null
+        }
+        onSelectCandidate={(candidate) => setSelectedCandidate(candidate)}
+        onLoadSamples={handleLoadSamples}
+      />
+
+      <CriteriaDrawer
+        open={criteriaOpen}
+        presets={ROLE_PRESETS}
+        selectedPresetId={selectedPresetId}
+        roleTitle={roleTitle}
+        companyName={companyName}
+        criteriaText={criteriaText}
+        mustHaveText={mustHaveText}
+        onSelectPreset={handleSelectPreset}
+        onChangeRoleTitle={(val) => {
+          setSelectedPresetId("custom");
+          setRoleTitle(val);
+        }}
+        onChangeCompanyName={setCompanyName}
+        onChangeCriteriaText={(val) => {
+          setSelectedPresetId("custom");
+          setCriteriaText(val);
+        }}
+        onChangeMustHaveText={(val) => {
+          setSelectedPresetId("custom");
+          setMustHaveText(val);
+        }}
+        onClose={() => setCriteriaOpen(false)}
+      />
+
+      <CandidateDrawer
+        candidate={selectedCandidate}
+        roleTitle={report?.roleTitle ?? roleTitle}
+        companyName={companyName}
+        onClose={() => setSelectedCandidate(null)}
+      />
+    </div>
+  );
+}
