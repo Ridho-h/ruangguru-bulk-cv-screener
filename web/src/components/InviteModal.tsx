@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, Copy, Mail, X } from "lucide-react";
+import { Check, Copy, X } from "lucide-react";
 import { generateInterviewInvite } from "@/lib/export";
 import type { ScreenedCandidate } from "@/lib/types";
 
