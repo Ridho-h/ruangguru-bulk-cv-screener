@@ -122,7 +122,7 @@ export function CandidatesTable({
   }, [report, query, filter]);
 
   return (
-    <main className="mx-auto max-w-[1220px] space-y-5 px-4 py-6 sm:px-6">
+    <main className="mx-auto max-w-[1220px] space-y-4 px-4 py-5 sm:px-6">
       {/* Elevated Table Sheet */}
       <section className="surface-card overflow-hidden rounded-2xl">
         {/* Table Toolbar */}
@@ -199,8 +199,8 @@ export function CandidatesTable({
           ) : null}
         </div>
 
-        {/* Bounded-height Scrollable Table */}
-        <div className="thin-scroll max-h-[360px] lg:max-h-[560px] overflow-x-auto overflow-y-auto">
+        {/* Bounded-height Scrollable Table (fits viewport cleanly, single scrollbar) */}
+        <div className="thin-scroll max-h-[360px] lg:max-h-[calc(100vh-188px)] overflow-x-auto overflow-y-auto overscroll-contain">
           <table className="w-full min-w-[840px] border-collapse text-left text-[13px]">
             <thead className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50/95 text-[11px] font-semibold uppercase tracking-wider text-slate-500 backdrop-blur-xs">
               <tr>
