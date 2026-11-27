@@ -122,7 +122,7 @@ export function CandidatesTable({
   }, [report, query, filter]);
 
   return (
-    <main className="mx-auto w-full max-w-[1600px] px-4 sm:px-8">
+    <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-8">
       {/* Unified Table Workspace (integrated directly on white background) */}
       <section className="bg-white">
         {/* Table Toolbar */}
@@ -204,7 +204,7 @@ export function CandidatesTable({
           <table className="w-full min-w-[840px] border-collapse text-left text-[13px]">
             <thead className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 text-[11px] font-semibold uppercase tracking-wider text-slate-500 backdrop-blur-xs">
               <tr>
-                <th scope="col" className="py-3 pr-4">
+                <th scope="col" className="py-3 pl-2 pr-4">
                   Kandidat
                 </th>
                 <th scope="col" className="px-4 py-3">
@@ -222,7 +222,7 @@ export function CandidatesTable({
                 <th scope="col" className="px-4 py-3">
                   Rekomendasi
                 </th>
-                <th scope="col" className="py-3 pl-4 text-right">
+                <th scope="col" className="py-3 pl-4 pr-4 text-right">
                   Aksi
                 </th>
               </tr>
@@ -297,7 +297,7 @@ export function CandidatesTable({
                           : "hover:bg-slate-50/90"
                       }`}
                     >
-                      <td className="py-3.5 pr-4">
+                      <td className="py-3.5 pl-2 pr-4">
                         <div className="flex items-center gap-3">
                           <span
                             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ring-1 ${getAvatarTone(candidate.candidateName)}`}
@@ -365,15 +365,15 @@ export function CandidatesTable({
                         )}
                       </td>
 
-                      <td className="py-3.5 pl-4 text-right">
-                        <div className="inline-flex items-center justify-end gap-1.5">
+                      <td className="py-3.5 pl-4 pr-4 text-right">
+                        <div className="inline-flex items-center justify-end gap-2.5">
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               onInviteCandidate(candidate);
                             }}
-                            className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-[12px] font-semibold transition-all duration-150 active:scale-[0.97] ${
+                            className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-3.5 text-[12px] font-semibold transition-all duration-150 active:scale-[0.97] ${
                               candidate.recommended
                                 ? "btn-primary"
                                 : "border border-slate-300 bg-white text-slate-700 shadow-2xs hover:border-slate-900 hover:bg-slate-900 hover:text-white"
@@ -389,7 +389,7 @@ export function CandidatesTable({
                               e.stopPropagation();
                               onSelectCandidate(candidate);
                             }}
-                            className="inline-flex h-8 cursor-pointer items-center gap-0.5 rounded-lg border border-slate-200 bg-white px-2.5 text-[12px] font-medium text-slate-700 shadow-2xs transition-all duration-150 hover:border-slate-400 hover:bg-slate-100 hover:text-slate-950 active:scale-[0.97]"
+                            className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-[12px] font-medium text-slate-700 shadow-2xs transition-all duration-150 hover:border-slate-400 hover:bg-slate-100 hover:text-slate-950 active:scale-[0.97]"
                           >
                             <span>Detail</span>
                             <ChevronRight

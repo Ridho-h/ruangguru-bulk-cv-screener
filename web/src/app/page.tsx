@@ -278,7 +278,7 @@ export default function ScreeningWorkspacePage() {
       ) : null}
 
       {errorMessage ? (
-        <div className="mx-auto max-w-[1600px] px-4 pt-4 sm:px-8">
+        <div className="mx-auto max-w-[1400px] px-4 pt-4 sm:px-8">
           <div
             role="alert"
             className="flex items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-800"
