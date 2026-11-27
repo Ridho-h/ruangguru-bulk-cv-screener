@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   Check,
   ChevronRight,
   Download,
+  ListFilter,
   Mail,
   Search,
   X,
@@ -94,11 +95,50 @@ export function CandidatesTable({
 }: CandidatesTableProps) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterValue>("all");
+  const [locationFilter, setLocationFilter] = useState<string>("all");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setQuery("");
     setFilter("all");
+    setLocationFilter("all");
+    setFilterOpen(false);
   }, [report]);
+
+  useEffect(() => {
+    if (!filterOpen) return;
+    const onPointerDown = (e: MouseEvent) => {
+      if (
+        filterMenuRef.current &&
+        !filterMenuRef.current.contains(e.target as Node)
+      ) {
+        setFilterOpen(false);
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFilterOpen(false);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [filterOpen]);
+
+  const availableLocations = useMemo(() => {
+    if (!report) return [];
+    const unique = new Set<string>();
+    for (const c of report.candidates) {
+      const loc = c.location.trim();
+      if (loc) unique.add(loc);
+    }
+    return Array.from(unique).sort((a, b) => a.localeCompare(b, "id"));
+  }, [report]);
+
+  const activeFilterCount =
+    (filter !== "all" ? 1 : 0) + (locationFilter !== "all" ? 1 : 0);
 
   const filteredCandidates = useMemo(() => {
     if (!report) return [];
@@ -112,6 +152,9 @@ export function CandidatesTable({
       ) {
         return false;
       }
+      if (locationFilter !== "all" && c.location.trim() !== locationFilter) {
+        return false;
+      }
       if (!normalizedQuery) return true;
       return (
         c.candidateName.toLowerCase().includes(normalizedQuery) ||
@@ -119,7 +162,7 @@ export function CandidatesTable({
         c.filename.toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [report, query, filter]);
+  }, [report, query, filter, locationFilter]);
 
   return (
     <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-8">
@@ -160,28 +203,100 @@ export function CandidatesTable({
                 />
               </div>
 
-              <div
-                className="inline-flex max-w-full flex-wrap items-center gap-0.5 rounded-lg border border-slate-200 bg-slate-100/80 p-0.5"
-                role="group"
-                aria-label="Filter kecocokan kandidat"
-              >
-                {FILTER_OPTIONS.map((opt) => {
-                  const active = filter === opt.value;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setFilter(opt.value)}
-                      className={`rounded-md px-2.5 py-1 text-[12px] font-medium transition-all duration-150 ${
-                        active
-                          ? "bg-white text-slate-900 shadow-2xs ring-1 ring-slate-200/80"
-                          : "text-slate-600 hover:text-slate-950"
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  );
-                })}
+              <div ref={filterMenuRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setFilterOpen((prev) => !prev)}
+                  aria-label="Filter kandidat"
+                  aria-expanded={filterOpen}
+                  aria-haspopup="dialog"
+                  title="Filter kandidat"
+                  className={`relative inline-flex h-8.5 w-8.5 items-center justify-center rounded-lg border shadow-2xs transition-all active:scale-[0.97] ${
+                    activeFilterCount > 0 || filterOpen
+                      ? "border-blue-600 bg-blue-50 text-blue-700"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
+                  }`}
+                >
+                  <ListFilter className="h-4 w-4" strokeWidth={1.85} />
+                  {activeFilterCount > 0 ? (
+                    <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-bold text-white tabular-nums">
+                      {activeFilterCount}
+                    </span>
+                  ) : null}
+                </button>
+
+                {filterOpen ? (
+                  <div
+                    role="dialog"
+                    aria-label="Opsi filter kandidat"
+                    className="absolute right-0 z-30 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-4 shadow-xl"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[13px] font-bold text-slate-900">
+                        Filter Kandidat
+                      </span>
+                      {activeFilterCount > 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFilter("all");
+                            setLocationFilter("all");
+                          }}
+                          className="text-[12px] font-medium text-blue-700 hover:underline"
+                        >
+                          Reset
+                        </button>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-3.5">
+                      <div className="text-[11.5px] font-semibold text-slate-500">
+                        Kecocokan &amp; Rekomendasi
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {FILTER_OPTIONS.map((opt) => {
+                          const active = filter === opt.value;
+                          return (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => setFilter(opt.value)}
+                              className={`rounded-lg border px-2.5 py-1 text-[12px] font-medium transition-colors ${
+                                active
+                                  ? "border-blue-600 bg-blue-600 text-white"
+                                  : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-slate-100"
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 border-t border-slate-100 pt-3.5">
+                      <label
+                        htmlFor="candidate-location-filter"
+                        className="block text-[11.5px] font-semibold text-slate-500"
+                      >
+                        Lokasi
+                      </label>
+                      <select
+                        id="candidate-location-filter"
+                        value={locationFilter}
+                        onChange={(e) => setLocationFilter(e.target.value)}
+                        className="mt-1.5 h-9 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[12.5px] font-medium text-slate-900 transition-colors hover:border-slate-300 focus:border-blue-600 focus:bg-white focus:outline-none"
+                      >
+                        <option value="all">Semua Lokasi</option>
+                        {availableLocations.map((loc) => (
+                          <option key={loc} value={loc}>
+                            {loc}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               {report.candidates.length > 0 ? (
