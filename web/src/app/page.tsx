@@ -5,6 +5,7 @@ import { AlertCircle, X } from "lucide-react";
 import { CandidateDrawer } from "@/components/CandidateDrawer";
 import { CandidatesTable } from "@/components/CandidatesTable";
 import { CriteriaDrawer } from "@/components/CriteriaDrawer";
+import { InviteModal } from "@/components/InviteModal";
 import { TopBar } from "@/components/TopBar";
 import { UploadBar, type StagedCvFile } from "@/components/UploadBar";
 import { resultsToCsv, safeCsvFilename } from "@/lib/export";
@@ -42,6 +43,8 @@ export default function ScreeningWorkspacePage() {
 
   const [report, setReport] = useState<BulkScreeningReport | null>(null);
   const [selectedCandidate, setSelectedCandidate] =
+    useState<ScreenedCandidate | null>(null);
+  const [inviteCandidate, setInviteCandidate] =
     useState<ScreenedCandidate | null>(null);
   const [criteriaOpen, setCriteriaOpen] = useState(false);
 
@@ -91,7 +94,9 @@ export default function ScreeningWorkspacePage() {
     });
 
     if (warnings.length > 0) {
-      setErrorMessage(`Sebagian file tidak ditambahkan: ${warnings.join("; ")}.`);
+      setErrorMessage(
+        `Sebagian file tidak ditambahkan: ${warnings.join("; ")}.`,
+      );
     } else {
       setErrorMessage(null);
     }
@@ -137,6 +142,14 @@ export default function ScreeningWorkspacePage() {
     setStagedFiles([]);
     setReport(null);
     setSelectedCandidate(null);
+    setInviteCandidate(null);
+    setErrorMessage(null);
+  }, []);
+
+  const handleBackToUpload = useCallback(() => {
+    setReport(null);
+    setSelectedCandidate(null);
+    setInviteCandidate(null);
     setErrorMessage(null);
   }, []);
 
@@ -146,6 +159,7 @@ export default function ScreeningWorkspacePage() {
     setIsScreening(true);
     setErrorMessage(null);
     setSelectedCandidate(null);
+    setInviteCandidate(null);
     setReport(null);
 
     try {
@@ -184,8 +198,9 @@ export default function ScreeningWorkspacePage() {
         body: formData,
       });
 
-      let payload: (BulkScreeningReport & { error?: string; failedFiles?: FailedFile[] }) | null =
-        null;
+      let payload:
+        | (BulkScreeningReport & { error?: string; failedFiles?: FailedFile[] })
+        | null = null;
       try {
         payload = (await res.json()) as BulkScreeningReport & {
           error?: string;
@@ -245,45 +260,43 @@ export default function ScreeningWorkspacePage() {
     URL.revokeObjectURL(url);
   }, [report]);
 
-  return (
-    <div className="min-h-screen bg-[#FFFFFF] text-[#0F172A]">
-      <TopBar
-        presets={ROLE_PRESETS}
-        selectedPresetId={selectedPresetId}
-        roleTitle={roleTitle}
-        onSelectPreset={handleSelectPreset}
-        onOpenCriteria={() => setCriteriaOpen(true)}
-        canExport={Boolean(report && report.candidates.length > 0 && !isScreening)}
-        onExportCsv={handleExportCsv}
-      />
+  const showResultsView = isScreening || Boolean(report);
 
-      <UploadBar
-        roleTitle={roleTitle}
-        stagedFiles={stagedFiles}
-        isLoadingSamples={isLoadingSamples}
-        isScreening={isScreening}
-        onAddFiles={handleAddFiles}
-        onRemoveFile={handleRemoveFile}
-        onLoadSamples={handleLoadSamples}
-        onReset={handleReset}
-        onStartScreening={handleStartScreening}
-      />
+  return (
+    <div className="min-h-screen bg-white text-zinc-950">
+      {showResultsView ? (
+        <TopBar
+          presets={ROLE_PRESETS}
+          selectedPresetId={selectedPresetId}
+          roleTitle={roleTitle}
+          onSelectPreset={handleSelectPreset}
+          onOpenCriteria={() => setCriteriaOpen(true)}
+          canExport={Boolean(
+            report && report.candidates.length > 0 && !isScreening,
+          )}
+          onExportCsv={handleExportCsv}
+          onBackToUpload={handleBackToUpload}
+        />
+      ) : null}
 
       {errorMessage ? (
-        <div className="mx-auto max-w-[1280px] px-4 pt-4 sm:px-6">
+        <div className="mx-auto max-w-[1200px] px-4 pt-4 sm:px-6">
           <div
             role="alert"
-            className="flex items-start justify-between gap-3 rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-[13px] text-[#B91C1C]"
+            className="flex items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-800"
           >
             <div className="flex items-start gap-2">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.75} />
+              <AlertCircle
+                className="mt-0.5 h-4 w-4 shrink-0"
+                strokeWidth={1.75}
+              />
               <span>{errorMessage}</span>
             </div>
             <button
               type="button"
               onClick={() => setErrorMessage(null)}
               aria-label="Tutup pesan kesalahan"
-              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-[#B91C1C] hover:bg-[#FEE2E2]"
+              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-rose-700 hover:bg-rose-100"
             >
               <X className="h-3.5 w-3.5" strokeWidth={1.75} />
             </button>
@@ -291,17 +304,37 @@ export default function ScreeningWorkspacePage() {
         </div>
       ) : null}
 
-      <CandidatesTable
-        report={report}
-        isScreening={isScreening}
-        stagedCount={stagedFiles.length}
-        roleTitle={report?.roleTitle ?? roleTitle}
-        selectedCandidateId={
-          selectedCandidate ? selectedCandidate.id || selectedCandidate.filename : null
-        }
-        onSelectCandidate={(candidate) => setSelectedCandidate(candidate)}
-        onLoadSamples={handleLoadSamples}
-      />
+      {!showResultsView ? (
+        <UploadBar
+          presets={ROLE_PRESETS}
+          selectedPresetId={selectedPresetId}
+          roleTitle={roleTitle}
+          stagedFiles={stagedFiles}
+          isLoadingSamples={isLoadingSamples}
+          isScreening={isScreening}
+          onSelectPreset={handleSelectPreset}
+          onOpenCriteria={() => setCriteriaOpen(true)}
+          onAddFiles={handleAddFiles}
+          onRemoveFile={handleRemoveFile}
+          onLoadSamples={handleLoadSamples}
+          onReset={handleReset}
+          onStartScreening={handleStartScreening}
+        />
+      ) : (
+        <CandidatesTable
+          report={report}
+          isScreening={isScreening}
+          stagedCount={stagedFiles.length}
+          roleTitle={report?.roleTitle ?? roleTitle}
+          selectedCandidateId={
+            selectedCandidate
+              ? selectedCandidate.id || selectedCandidate.filename
+              : null
+          }
+          onSelectCandidate={(candidate) => setSelectedCandidate(candidate)}
+          onInviteCandidate={(candidate) => setInviteCandidate(candidate)}
+        />
+      )}
 
       <CriteriaDrawer
         open={criteriaOpen}
@@ -330,9 +363,15 @@ export default function ScreeningWorkspacePage() {
 
       <CandidateDrawer
         candidate={selectedCandidate}
+        onClose={() => setSelectedCandidate(null)}
+        onInviteCandidate={(candidate) => setInviteCandidate(candidate)}
+      />
+
+      <InviteModal
+        candidate={inviteCandidate}
         roleTitle={report?.roleTitle ?? roleTitle}
         companyName={companyName}
-        onClose={() => setSelectedCandidate(null)}
+        onClose={() => setInviteCandidate(null)}
       />
     </div>
   );

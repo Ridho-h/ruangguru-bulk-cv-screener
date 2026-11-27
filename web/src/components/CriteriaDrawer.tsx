@@ -229,7 +229,7 @@ export function CriteriaDrawer({
             type="button"
             tabIndex={open ? 0 : -1}
             onClick={onClose}
-            className="inline-flex h-9 items-center rounded-md bg-[#0F766E] px-4 text-[13px] font-medium text-white transition-colors duration-150 hover:bg-[#115E59]"
+            className="inline-flex h-9 items-center rounded-md bg-zinc-900 px-4 text-[13px] font-medium text-white transition-colors duration-150 hover:bg-zinc-800"
           >
             Simpan Kriteria
           </button>

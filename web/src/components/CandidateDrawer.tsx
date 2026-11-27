@@ -1,25 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   Check,
   CheckCircle2,
-  Copy,
   FileText,
   Mail,
   MapPin,
   X,
 } from "lucide-react";
-import { generateInterviewInvite } from "@/lib/export";
 import type { MatchLevel, ScreenedCandidate } from "@/lib/types";
 import { DonutGauge } from "./DonutGauge";
 
 interface CandidateDrawerProps {
   candidate: ScreenedCandidate | null;
-  roleTitle: string;
-  companyName: string;
   onClose: () => void;
+  onInviteCandidate: (candidate: ScreenedCandidate) => void;
 }
 
 function getInitials(name: string): string {
@@ -29,35 +26,34 @@ function getInitials(name: string): string {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
+function matchLabel(level: MatchLevel): string {
+  if (level === "High") return "Kecocokan Tinggi";
+  if (level === "Medium") return "Kecocokan Sedang";
+  return "Kecocokan Rendah";
+}
+
 function matchPillClasses(level: MatchLevel): string {
   if (level === "High") {
-    return "bg-[#ECFDF5] text-[#15803D] border-[#A7F3D0]";
+    return "bg-emerald-50 text-emerald-700 border-emerald-200";
   }
   if (level === "Medium") {
-    return "bg-[#FFFBEB] text-[#B45309] border-[#FDE68A]";
+    return "bg-amber-50 text-amber-800 border-amber-200";
   }
-  return "bg-[#FEF2F2] text-[#B91C1C] border-[#FECACA]";
+  return "bg-rose-50 text-rose-700 border-rose-200";
 }
 
 export function CandidateDrawer({
   candidate,
-  roleTitle,
-  companyName,
   onClose,
+  onInviteCandidate,
 }: CandidateDrawerProps) {
   const isOpen = Boolean(candidate);
   const [displayCandidate, setDisplayCandidate] =
     useState<ScreenedCandidate | null>(candidate);
-  const [showInvite, setShowInvite] = useState(false);
-  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">(
-    "idle",
-  );
 
   const panelRef = useRef<HTMLElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
-  const inviteTextareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const copyTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (candidate) {
@@ -67,23 +63,6 @@ export function CandidateDrawer({
       return () => window.clearTimeout(timer);
     }
   }, [candidate]);
-
-  useEffect(() => {
-    setShowInvite(false);
-    setCopyStatus("idle");
-    if (copyTimerRef.current) {
-      window.clearTimeout(copyTimerRef.current);
-      copyTimerRef.current = null;
-    }
-  }, [candidate?.id, candidate?.filename]);
-
-  useEffect(() => {
-    return () => {
-      if (copyTimerRef.current) {
-        window.clearTimeout(copyTimerRef.current);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -123,42 +102,11 @@ export function CandidateDrawer({
     };
   }, [isOpen, onClose]);
 
-  const inviteText = useMemo(() => {
-    if (!displayCandidate) return "";
-    return generateInterviewInvite(displayCandidate, roleTitle, companyName);
-  }, [displayCandidate, roleTitle, companyName]);
-
-  const handleCopyInvite = async () => {
-    if (copyTimerRef.current) {
-      window.clearTimeout(copyTimerRef.current);
-    }
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(inviteText);
-      } else if (inviteTextareaRef.current) {
-        inviteTextareaRef.current.select();
-        document.execCommand("copy");
-      } else {
-        throw new Error("Clipboard unavailable");
-      }
-      setCopyStatus("copied");
-    } catch {
-      if (inviteTextareaRef.current) {
-        inviteTextareaRef.current.select();
-      }
-      setCopyStatus("failed");
-    }
-    copyTimerRef.current = window.setTimeout(() => {
-      setCopyStatus("idle");
-      copyTimerRef.current = null;
-    }, 2200);
-  };
-
   if (!displayCandidate) return null;
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex justify-end transition-opacity duration-[180ms] ${
+      className={`fixed inset-0 z-40 flex justify-end transition-opacity duration-[180ms] ${
         isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
       }`}
       role="dialog"
@@ -167,22 +115,22 @@ export function CandidateDrawer({
       aria-labelledby="candidate-drawer-title"
     >
       <div
-        className="fixed inset-0 bg-[#0F172A]/25"
+        className="fixed inset-0 bg-zinc-950/25"
         onClick={isOpen ? onClose : undefined}
         aria-hidden="true"
       />
 
       <aside
         ref={panelRef}
-        className={`relative z-10 flex h-full w-full max-w-[500px] flex-col border-l border-[#E6E9EF] bg-[#FFFFFF] shadow-xl transition-transform duration-[180ms] ease-out ${
+        className={`relative z-10 flex h-full w-full max-w-[500px] flex-col border-l border-zinc-200 bg-white shadow-xl transition-transform duration-[180ms] ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3 border-b border-[#E6E9EF] px-6 py-4">
+        {/* Header with quick Invite action right at the top */}
+        <div className="flex items-start justify-between gap-3 border-b border-zinc-200 px-6 py-4">
           <div className="flex min-w-0 items-start gap-3">
             <span
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F0FDFA] text-[13px] font-semibold text-[#0F766E] ring-1 ring-[#CCFBF1]"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[13px] font-semibold text-zinc-700"
               aria-hidden="true"
             >
               {getInitials(displayCandidate.candidateName)}
@@ -190,79 +138,89 @@ export function CandidateDrawer({
             <div className="min-w-0">
               <h2
                 id="candidate-drawer-title"
-                className="break-words text-[17px] font-semibold tracking-tight text-[#0F172A]"
+                className="break-words text-[17px] font-semibold tracking-tight text-zinc-950"
               >
                 {displayCandidate.candidateName}
               </h2>
-              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[#475569]">
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-zinc-500">
                 <span className="inline-flex items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5 text-[#475569]" strokeWidth={1.75} />
+                  <MapPin className="h-3.5 w-3.5" strokeWidth={1.75} />
                   {displayCandidate.location}
                 </span>
                 <span className="inline-flex items-center gap-1 truncate">
-                  <FileText className="h-3.5 w-3.5 text-[#475569]" strokeWidth={1.75} />
-                  <span className="max-w-[180px] truncate">{displayCandidate.filename}</span>
+                  <FileText className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  <span className="max-w-[180px] truncate">
+                    {displayCandidate.filename}
+                  </span>
                 </span>
               </div>
-              <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-full border border-[#E6E9EF] bg-[#F7F8FA] px-2.5 py-0.5 text-[12px] font-semibold text-[#0F172A] tabular-nums">
-                  Score {displayCandidate.overallScore}/100
+              <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[12px] font-semibold text-zinc-900 tabular-nums">
+                  Skor {displayCandidate.overallScore}/100
                 </span>
                 <span
-                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[12px] font-medium ${matchPillClasses(displayCandidate.matchLevel)}`}
+                  className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[12px] font-medium ${matchPillClasses(displayCandidate.matchLevel)}`}
                 >
-                  {displayCandidate.matchLevel} Match
+                  {matchLabel(displayCandidate.matchLevel)}
                 </span>
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[12px] font-medium ${
-                    displayCandidate.recommended
-                      ? "border-[#A7F3D0] bg-[#ECFDF5] text-[#15803D]"
-                      : "border-[#FECACA] bg-[#FEF2F2] text-[#B91C1C]"
-                  }`}
-                >
-                  {displayCandidate.recommended ? (
+                {displayCandidate.recommended ? (
+                  <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[12px] font-medium text-emerald-700">
                     <Check className="h-3 w-3" strokeWidth={2} />
-                  ) : (
-                    <X className="h-3 w-3" strokeWidth={2} />
-                  )}
-                  {displayCandidate.recommended
-                    ? "Recommended"
-                    : "Belum Direkomendasikan"}
-                </span>
+                    Direkomendasikan
+                  </span>
+                ) : null}
               </div>
             </div>
           </div>
 
-          <button
-            ref={closeButtonRef}
-            type="button"
-            tabIndex={isOpen ? 0 : -1}
-            onClick={onClose}
-            aria-label="Tutup detail kandidat"
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[#475569] transition-colors duration-150 hover:bg-[#F7F8FA] hover:text-[#0F172A]"
-          >
-            <X className="h-4 w-4" strokeWidth={1.75} />
-          </button>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <button
+              type="button"
+              tabIndex={isOpen ? 0 : -1}
+              onClick={() => onInviteCandidate(displayCandidate)}
+              className="inline-flex h-8 items-center gap-1.5 rounded-md bg-zinc-900 px-3 text-[12px] font-medium text-white hover:bg-zinc-800"
+            >
+              <Mail className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <span>Undang</span>
+            </button>
+
+            <button
+              ref={closeButtonRef}
+              type="button"
+              tabIndex={isOpen ? 0 : -1}
+              onClick={onClose}
+              aria-label="Tutup detail kandidat"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
+            >
+              <X className="h-4 w-4" strokeWidth={1.75} />
+            </button>
+          </div>
         </div>
 
-        {/* Scrollable Content (hairline sections, no nested cards) */}
-        <div className="thin-scroll flex-1 divide-y divide-[#E6E9EF] overflow-y-auto px-6">
-          {/* AI Recommendation Gauges */}
+        {/* Scrollable Content */}
+        <div className="thin-scroll flex-1 divide-y divide-zinc-200 overflow-y-auto px-6">
+          {/* Score Breakdown */}
           <section className="py-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-[14px] font-semibold text-[#0F172A]">
-                AI Recommendation
+              <h3 className="text-[13px] font-semibold text-zinc-950">
+                Rincian Penilaian
               </h3>
-              <span className="text-[12px] text-[#475569] tabular-nums">
-                Kemiripan RAG: {displayCandidate.ragScore}%
+              <span className="text-[12px] text-zinc-500 tabular-nums">
+                Relevansi Kata Kunci: {displayCandidate.ragScore}%
               </span>
             </div>
 
             <div className="mt-4 grid grid-cols-3 gap-3">
-              <DonutGauge label="Job Match" value={displayCandidate.jobMatchScore} />
-              <DonutGauge label="Experience" value={displayCandidate.experienceScore} />
               <DonutGauge
-                label="Technical Skills"
+                label="Kecocokan Peran"
+                value={displayCandidate.jobMatchScore}
+              />
+              <DonutGauge
+                label="Pengalaman"
+                value={displayCandidate.experienceScore}
+              />
+              <DonutGauge
+                label="Skill Teknis"
                 value={displayCandidate.technicalSkillsScore}
               />
             </div>
@@ -270,8 +228,10 @@ export function CandidateDrawer({
 
           {/* Summary */}
           <section className="py-5">
-            <h3 className="text-[13px] font-semibold text-[#0F172A]">Ringkasan</h3>
-            <p className="mt-2 text-[13px] leading-relaxed text-[#475569]">
+            <h3 className="text-[13px] font-semibold text-zinc-950">
+              Ringkasan
+            </h3>
+            <p className="mt-2 text-[13px] leading-relaxed text-zinc-600">
               {displayCandidate.summary}
             </p>
           </section>
@@ -279,17 +239,17 @@ export function CandidateDrawer({
           {/* Strengths & Gaps */}
           <section className="grid grid-cols-1 gap-5 py-5 sm:grid-cols-2">
             <div>
-              <h3 className="text-[13px] font-semibold text-[#0F172A]">
+              <h3 className="text-[13px] font-semibold text-zinc-950">
                 Kelebihan Utama
               </h3>
               <ul className="mt-2.5 space-y-2">
                 {displayCandidate.strengths.map((item, idx) => (
                   <li
                     key={`str-${idx}`}
-                    className="flex items-start gap-2 text-[13px] leading-snug text-[#475569]"
+                    className="flex items-start gap-2 text-[13px] leading-snug text-zinc-600"
                   >
                     <CheckCircle2
-                      className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#15803D]"
+                      className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600"
                       strokeWidth={1.75}
                     />
                     <span>{item}</span>
@@ -299,17 +259,17 @@ export function CandidateDrawer({
             </div>
 
             <div>
-              <h3 className="text-[13px] font-semibold text-[#0F172A]">
+              <h3 className="text-[13px] font-semibold text-zinc-950">
                 Celah &amp; Catatan
               </h3>
               <ul className="mt-2.5 space-y-2">
                 {displayCandidate.gaps.map((item, idx) => (
                   <li
                     key={`gap-${idx}`}
-                    className="flex items-start gap-2 text-[13px] leading-snug text-[#475569]"
+                    className="flex items-start gap-2 text-[13px] leading-snug text-zinc-600"
                   >
                     <AlertCircle
-                      className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#B45309]"
+                      className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600"
                       strokeWidth={1.75}
                     />
                     <span>{item}</span>
@@ -321,79 +281,22 @@ export function CandidateDrawer({
 
           {/* Interview Focus Areas */}
           <section className="py-5">
-            <h3 className="text-[13px] font-semibold text-[#0F172A]">
-              Interview Focus Areas
+            <h3 className="text-[13px] font-semibold text-zinc-950">
+              Topik Wawancara
             </h3>
             <ol className="mt-3 space-y-2.5">
               {displayCandidate.interviewFocusAreas.map((focus, idx) => (
                 <li
                   key={`focus-${idx}`}
-                  className="flex items-start gap-2.5 text-[13px] leading-snug text-[#0F172A]"
+                  className="flex items-start gap-2.5 text-[13px] leading-snug text-zinc-600"
                 >
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#F7F8FA] text-[11px] font-semibold text-[#0F766E] ring-1 ring-[#E6E9EF] tabular-nums">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[11px] font-semibold text-zinc-700 tabular-nums">
                     {idx + 1}
                   </span>
-                  <span className="text-[#475569]">{focus}</span>
+                  <span>{focus}</span>
                 </li>
               ))}
             </ol>
-          </section>
-
-          {/* Inline Interview Invite Draft */}
-          <section className="py-5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <button
-                type="button"
-                tabIndex={isOpen ? 0 : -1}
-                onClick={() => setShowInvite((prev) => !prev)}
-                className="inline-flex h-9 items-center gap-2 rounded-md bg-[#0F766E] px-4 text-[13px] font-medium text-white transition-colors duration-150 hover:bg-[#115E59]"
-              >
-                <Mail className="h-3.5 w-3.5" strokeWidth={1.75} />
-                <span>
-                  {showInvite ? "Sembunyikan Draft Undangan" : "Buat Draft Undangan"}
-                </span>
-              </button>
-
-              {showInvite ? (
-                <button
-                  type="button"
-                  tabIndex={isOpen ? 0 : -1}
-                  onClick={handleCopyInvite}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#E6E9EF] bg-[#FFFFFF] px-3 text-[13px] font-medium text-[#0F172A] transition-colors duration-150 hover:bg-[#F7F8FA]"
-                >
-                  {copyStatus === "copied" ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 text-[#15803D]" strokeWidth={2} />
-                      <span className="text-[#15803D]">Tersalin</span>
-                    </>
-                  ) : copyStatus === "failed" ? (
-                    <span className="text-[#B45309]">Pilih &amp; salin manual</span>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5 text-[#475569]" strokeWidth={1.75} />
-                      <span>Salin Teks</span>
-                    </>
-                  )}
-                </button>
-              ) : null}
-            </div>
-
-            {showInvite ? (
-              <div className="mt-3">
-                <label htmlFor="interview-invite-textarea" className="sr-only">
-                  Draft undangan wawancara
-                </label>
-                <textarea
-                  ref={inviteTextareaRef}
-                  id="interview-invite-textarea"
-                  tabIndex={isOpen ? 0 : -1}
-                  readOnly
-                  rows={11}
-                  value={inviteText}
-                  className="w-full rounded-md border border-[#E6E9EF] bg-[#F7F8FA] p-3 text-[12px] leading-relaxed text-[#0F172A]"
-                />
-              </div>
-            ) : null}
           </section>
         </div>
       </aside>

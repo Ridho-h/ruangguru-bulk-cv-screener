@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, FileSearch, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Download, SlidersHorizontal } from "lucide-react";
 import type { RolePreset } from "@/lib/types";
 
 interface TopBarProps {
@@ -11,6 +11,7 @@ interface TopBarProps {
   onOpenCriteria: () => void;
   canExport: boolean;
   onExportCsv: () => void;
+  onBackToUpload: () => void;
 }
 
 export function TopBar({
@@ -21,32 +22,30 @@ export function TopBar({
   onOpenCriteria,
   canExport,
   onExportCsv,
+  onBackToUpload,
 }: TopBarProps) {
   return (
-    <header className="sticky top-0 z-30 border-b border-[#E6E9EF] bg-[#F7F8FA]/95 backdrop-blur-xs">
-      <div className="mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-3 px-4 sm:px-6">
+    <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/95 backdrop-blur-xs">
+      <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between gap-3 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex items-center gap-2.5">
-            <span
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#0F766E] text-white"
-              aria-hidden="true"
-            >
-              <FileSearch className="h-4 w-4" strokeWidth={1.75} />
-            </span>
-            <h1 className="truncate text-[15px] font-semibold tracking-tight text-[#0F172A]">
-              Screening CV
-            </h1>
-          </div>
+          <button
+            type="button"
+            onClick={onBackToUpload}
+            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2.5 text-[13px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
+            <span>Unggah Ulang</span>
+          </button>
 
           <span
-            className="hidden h-4 w-px bg-[#E6E9EF] sm:inline-block"
+            className="hidden h-4 w-px bg-zinc-200 sm:inline-block"
             aria-hidden="true"
           />
 
           <div className="hidden items-center gap-2 sm:flex">
             <label
               htmlFor="role-preset-select"
-              className="text-[12px] font-medium text-[#475569]"
+              className="text-[12px] font-medium text-zinc-500"
             >
               Posisi
             </label>
@@ -54,7 +53,7 @@ export function TopBar({
               id="role-preset-select"
               value={selectedPresetId}
               onChange={(e) => onSelectPreset(e.target.value)}
-              className="h-8 rounded-md border border-[#E6E9EF] bg-[#FFFFFF] px-2.5 pr-7 text-[13px] font-medium text-[#0F172A] transition-colors duration-150 hover:border-[#CBD5E1]"
+              className="h-8 rounded-md border border-zinc-200 bg-white px-2.5 pr-7 text-[13px] font-medium text-zinc-900 transition-colors hover:border-zinc-300"
             >
               {presets.map((preset) => (
                 <option key={preset.id} value={preset.id}>
@@ -72,49 +71,30 @@ export function TopBar({
           <button
             type="button"
             onClick={onOpenCriteria}
-            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[#E6E9EF] bg-[#FFFFFF] px-3 text-[13px] font-medium text-[#0F172A] transition-colors duration-150 hover:bg-[#F1F5F9]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 text-[13px] font-medium text-zinc-800 transition-colors hover:bg-zinc-50"
           >
-            <SlidersHorizontal className="h-3.5 w-3.5 text-[#475569]" strokeWidth={1.75} />
-            <span>Atur Kriteria</span>
+            <SlidersHorizontal
+              className="h-3.5 w-3.5 text-zinc-500"
+              strokeWidth={1.75}
+            />
+            <span>Kriteria</span>
           </button>
 
           {canExport ? (
             <button
               type="button"
               onClick={onExportCsv}
-              aria-label="Export CSV"
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[#E6E9EF] bg-[#FFFFFF] px-2.5 text-[13px] font-medium text-[#0F172A] transition-colors duration-150 hover:bg-[#F1F5F9] sm:px-3"
+              aria-label="Unduh CSV"
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2.5 text-[13px] font-medium text-zinc-800 transition-colors hover:bg-zinc-50 sm:px-3"
             >
-              <Download className="h-3.5 w-3.5 text-[#475569]" strokeWidth={1.75} />
-              <span className="hidden sm:inline">Export CSV</span>
+              <Download
+                className="h-3.5 w-3.5 text-zinc-500"
+                strokeWidth={1.75}
+              />
+              <span className="hidden sm:inline">Unduh CSV</span>
             </button>
           ) : null}
         </div>
-      </div>
-
-      {/* Responsive mobile role selector */}
-      <div className="flex items-center gap-2 border-t border-[#E6E9EF] px-4 py-2 sm:hidden">
-        <label
-          htmlFor="role-preset-select-mobile"
-          className="shrink-0 text-[12px] font-medium text-[#475569]"
-        >
-          Posisi
-        </label>
-        <select
-          id="role-preset-select-mobile"
-          value={selectedPresetId}
-          onChange={(e) => onSelectPreset(e.target.value)}
-          className="h-8 min-w-0 flex-1 rounded-md border border-[#E6E9EF] bg-[#FFFFFF] px-2.5 text-[13px] font-medium text-[#0F172A]"
-        >
-          {presets.map((preset) => (
-            <option key={preset.id} value={preset.id}>
-              {preset.roleTitle}
-            </option>
-          ))}
-          {selectedPresetId === "custom" ? (
-            <option value="custom">{roleTitle || "Posisi Kustom"}</option>
-          ) : null}
-        </select>
       </div>
     </header>
   );

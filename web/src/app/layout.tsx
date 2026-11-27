@@ -10,9 +10,9 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Screening CV — Bulk Candidate Evaluation",
+  title: "Penyaringan CV — Evaluasi Kandidat Massal",
   description:
-    "Workspace penyaringan CV massal berbasis RAG dan evaluasi terstruktur untuk tim rekrutmen.",
+    "Bandingkan dan beri peringkat CV kandidat secara terstruktur berdasarkan kriteria posisi.",
 };
 
 export default function RootLayout({

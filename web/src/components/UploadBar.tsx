@@ -7,9 +7,11 @@ import {
   Loader2,
   Play,
   RotateCcw,
+  SlidersHorizontal,
   Upload,
   X,
 } from "lucide-react";
+import type { RolePreset } from "@/lib/types";
 
 export interface StagedCvFile {
   id: string;
@@ -21,10 +23,14 @@ export interface StagedCvFile {
 }
 
 interface UploadBarProps {
+  presets: RolePreset[];
+  selectedPresetId: string;
   roleTitle: string;
   stagedFiles: StagedCvFile[];
   isLoadingSamples: boolean;
   isScreening: boolean;
+  onSelectPreset: (presetId: string) => void;
+  onOpenCriteria: () => void;
   onAddFiles: (files: FileList | File[]) => void;
   onRemoveFile: (id: string) => void;
   onLoadSamples: () => void;
@@ -39,10 +45,14 @@ function formatBytes(bytes: number): string {
 }
 
 export function UploadBar({
+  presets,
+  selectedPresetId,
   roleTitle,
   stagedFiles,
   isLoadingSamples,
   isScreening,
+  onSelectPreset,
+  onOpenCriteria,
   onAddFiles,
   onRemoveFile,
   onLoadSamples,
@@ -79,138 +89,137 @@ export function UploadBar({
   };
 
   return (
-    <section
-      aria-label="Unggah CV PDF"
-      className="border-b border-[#E6E9EF] bg-[#FFFFFF]"
-    >
-      <div className="mx-auto max-w-[1280px] px-4 py-4 sm:px-6">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex-1">
-            <input
-              ref={inputRef}
-              type="file"
-              accept=".pdf,application/pdf"
-              multiple
-              disabled={isScreening}
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files && e.target.files.length > 0) {
-                  onAddFiles(e.target.files);
-                  e.target.value = "";
-                }
-              }}
-            />
+    <main className="mx-auto flex min-h-[82vh] max-w-2xl flex-col justify-center px-4 py-12 sm:px-6">
+      <div>
+        <h1 className="text-[24px] font-semibold tracking-tight text-zinc-950">
+          Penyaringan CV
+        </h1>
+        <p className="mt-1.5 text-[14px] leading-relaxed text-zinc-600">
+          Pilih posisi lowongan, lalu unggah file CV dalam format PDF untuk
+          menyusun peringkat kandidat dan draf undangan wawancara.
+        </p>
+      </div>
 
-            <div
-              onDragEnter={handleDragEnter}
-              onDragOver={(e) => e.preventDefault()}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => !isScreening && inputRef.current?.click()}
-              role="button"
-              tabIndex={isScreening ? -1 : 0}
-              aria-disabled={isScreening}
-              onKeyDown={(e) => {
-                if ((e.key === "Enter" || e.key === " ") && !isScreening) {
-                  e.preventDefault();
-                  inputRef.current?.click();
-                }
-              }}
-              className={`flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-dashed px-4 py-3 transition-colors duration-150 ${
-                isDragging
-                  ? "border-[#0F766E] bg-[#F0FDFA]"
-                  : "border-[#CBD5E1] bg-[#F7F8FA] hover:border-[#0F766E]/60 hover:bg-[#F0FDFA]/40"
-              } ${isScreening ? "pointer-events-none opacity-60" : ""}`}
-            >
-              <div className="flex min-w-0 items-center gap-3">
-                <span
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#E6E9EF] bg-[#FFFFFF] text-[#0F766E]"
-                  aria-hidden="true"
-                >
-                  <Upload className="h-4 w-4" strokeWidth={1.75} />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[13px] font-medium text-[#0F172A]">
-                    Tarik dan lepas file CV PDF di sini, atau klik untuk memilih file
-                  </p>
-                  <p className="text-[12px] text-[#475569]">
-                    Maksimal 30 file PDF (hingga 10 MB per file) untuk posisi{" "}
-                    <span className="font-medium text-[#0F172A]">{roleTitle}</span>
-                  </p>
-                </div>
-              </div>
-
-              <span className="hidden shrink-0 rounded-md border border-[#E6E9EF] bg-[#FFFFFF] px-2.5 py-1 text-[12px] font-medium text-[#475569] sm:inline-block">
-                Pilih PDF
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
-            <button
-              type="button"
-              onClick={onLoadSamples}
-              disabled={isScreening || isLoadingSamples}
-              className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#E6E9EF] bg-[#FFFFFF] px-3 text-[13px] font-medium text-[#0F172A] transition-colors duration-150 hover:bg-[#F7F8FA] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isLoadingSamples ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-[#475569]" strokeWidth={1.75} />
-              ) : (
-                <FolderOpen className="h-3.5 w-3.5 text-[#475569]" strokeWidth={1.75} />
-              )}
-              <span>Muat 6 CV contoh</span>
-            </button>
-
-            {stagedFiles.length > 0 ? (
-              <button
-                type="button"
-                onClick={onReset}
-                disabled={isScreening}
-                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#E6E9EF] bg-[#FFFFFF] px-2.5 text-[13px] font-medium text-[#475569] transition-colors duration-150 hover:bg-[#F7F8FA] hover:text-[#0F172A] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.75} />
-                <span>Reset</span>
-              </button>
+      {/* Role & Criteria row */}
+      <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex-1">
+          <label
+            htmlFor="setup-role-select"
+            className="block text-[12px] font-medium text-zinc-600"
+          >
+            Posisi Lowongan
+          </label>
+          <select
+            id="setup-role-select"
+            value={selectedPresetId}
+            onChange={(e) => onSelectPreset(e.target.value)}
+            disabled={isScreening}
+            className="mt-1 h-9 w-full rounded-md border border-zinc-300 bg-white px-3 text-[13px] font-medium text-zinc-900 hover:border-zinc-400"
+          >
+            {presets.map((preset) => (
+              <option key={preset.id} value={preset.id}>
+                {preset.roleTitle}
+              </option>
+            ))}
+            {selectedPresetId === "custom" ? (
+              <option value="custom">{roleTitle || "Posisi Kustom"}</option>
             ) : null}
-
-            <button
-              type="button"
-              onClick={onStartScreening}
-              disabled={isScreening || stagedFiles.length === 0}
-              className="inline-flex h-9 items-center gap-1.5 rounded-md bg-[#0F766E] px-4 text-[13px] font-medium text-white transition-colors duration-150 hover:bg-[#115E59] disabled:cursor-not-allowed disabled:bg-[#94A3B8]"
-            >
-              {isScreening ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.75} />
-              ) : (
-                <Play className="h-3.5 w-3.5" strokeWidth={1.75} />
-              )}
-              <span>
-                {isScreening
-                  ? "Menyaring..."
-                  : stagedFiles.length > 0
-                    ? `Mulai Screening (${stagedFiles.length})`
-                    : "Mulai Screening"}
-              </span>
-            </button>
-          </div>
+          </select>
         </div>
 
-        {stagedFiles.length > 0 ? (
-          <div className="mt-3 flex flex-wrap items-center gap-1.5">
-            <span className="mr-1 text-[12px] font-medium text-[#475569] tabular-nums">
-              Siap diproses ({stagedFiles.length}):
+        <button
+          type="button"
+          onClick={onOpenCriteria}
+          disabled={isScreening}
+          className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3.5 text-[13px] font-medium text-zinc-800 transition-colors hover:bg-zinc-50 disabled:opacity-50"
+        >
+          <SlidersHorizontal
+            className="h-3.5 w-3.5 text-zinc-500"
+            strokeWidth={1.75}
+          />
+          <span>Atur Kriteria</span>
+        </button>
+      </div>
+
+      {/* Dropzone */}
+      <div className="mt-4">
+        <input
+          ref={inputRef}
+          type="file"
+          accept=".pdf,application/pdf"
+          multiple
+          disabled={isScreening}
+          className="hidden"
+          onChange={(e) => {
+            if (e.target.files && e.target.files.length > 0) {
+              onAddFiles(e.target.files);
+              e.target.value = "";
+            }
+          }}
+        />
+
+        <div
+          onDragEnter={handleDragEnter}
+          onDragOver={(e) => e.preventDefault()}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => !isScreening && inputRef.current?.click()}
+          role="button"
+          tabIndex={isScreening ? -1 : 0}
+          aria-disabled={isScreening}
+          onKeyDown={(e) => {
+            if ((e.key === "Enter" || e.key === " ") && !isScreening) {
+              e.preventDefault();
+              inputRef.current?.click();
+            }
+          }}
+          className={`cursor-pointer rounded-xl border border-dashed px-6 py-10 text-center transition-colors duration-150 ${
+            isDragging
+              ? "border-teal-700 bg-teal-50/40"
+              : "border-zinc-300 bg-zinc-50/60 hover:border-zinc-400 hover:bg-zinc-50"
+          } ${isScreening ? "pointer-events-none opacity-60" : ""}`}
+        >
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-700">
+            <Upload className="h-4 w-4" strokeWidth={1.75} />
+          </div>
+          <p className="mt-3 text-[14px] font-medium text-zinc-900">
+            Tarik dan lepas file CV PDF di sini, atau klik untuk memilih
+          </p>
+          <p className="mt-1 text-[12px] text-zinc-500">
+            Format PDF · Maksimal 30 file (10 MB per file)
+          </p>
+        </div>
+      </div>
+
+      {/* Staged file chips */}
+      {stagedFiles.length > 0 ? (
+        <div className="mt-4 rounded-lg border border-zinc-200 bg-white p-3.5">
+          <div className="flex items-center justify-between gap-2 text-[12px]">
+            <span className="font-medium text-zinc-700 tabular-nums">
+              {stagedFiles.length} file siap dinilai
             </span>
+            <button
+              type="button"
+              onClick={onReset}
+              disabled={isScreening}
+              className="inline-flex items-center gap-1 text-zinc-500 hover:text-zinc-900 disabled:opacity-50"
+            >
+              <RotateCcw className="h-3 w-3" strokeWidth={1.75} />
+              <span>Hapus semua</span>
+            </button>
+          </div>
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
             {stagedFiles.map((item) => (
               <span
                 key={item.id}
-                className="inline-flex max-w-[280px] items-center gap-1.5 rounded-md border border-[#E6E9EF] bg-[#F7F8FA] py-0.5 pl-2 pr-1 text-[12px] text-[#0F172A]"
+                className="inline-flex max-w-[260px] items-center gap-1.5 rounded-md border border-zinc-200 bg-zinc-50 py-1 pl-2 pr-1 text-[12px] text-zinc-800"
               >
                 <FileText
-                  className="h-3.5 w-3.5 shrink-0 text-[#475569]"
+                  className="h-3.5 w-3.5 shrink-0 text-zinc-500"
                   strokeWidth={1.75}
                 />
                 <span className="truncate">{item.name}</span>
-                <span className="shrink-0 text-[11px] text-[#475569] tabular-nums">
+                <span className="shrink-0 text-[11px] text-zinc-500 tabular-nums">
                   {formatBytes(item.sizeBytes)}
                 </span>
                 {!isScreening ? (
@@ -218,16 +227,59 @@ export function UploadBar({
                     type="button"
                     onClick={() => onRemoveFile(item.id)}
                     aria-label={`Hapus ${item.name}`}
-                    className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-[#475569] transition-colors duration-150 hover:bg-[#E2E8F0] hover:text-[#0F172A]"
+                    className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-zinc-400 hover:bg-zinc-200 hover:text-zinc-900"
                   >
-                    <X className="h-3.5 w-3.5" strokeWidth={1.75} />
+                    <X className="h-3 w-3" strokeWidth={1.75} />
                   </button>
                 ) : null}
               </span>
             ))}
           </div>
-        ) : null}
+        </div>
+      ) : null}
+
+      {/* Actions */}
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={onLoadSamples}
+          disabled={isScreening || isLoadingSamples}
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3.5 text-[13px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50 disabled:opacity-50"
+        >
+          {isLoadingSamples ? (
+            <Loader2
+              className="h-3.5 w-3.5 animate-spin text-zinc-500"
+              strokeWidth={1.75}
+            />
+          ) : (
+            <FolderOpen
+              className="h-3.5 w-3.5 text-zinc-500"
+              strokeWidth={1.75}
+            />
+          )}
+          <span>Muat 6 CV contoh</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onStartScreening}
+          disabled={isScreening || stagedFiles.length === 0}
+          className="inline-flex h-9 items-center gap-1.5 rounded-md bg-zinc-900 px-4 text-[13px] font-medium text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300"
+        >
+          {isScreening ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.75} />
+          ) : (
+            <Play className="h-3.5 w-3.5" strokeWidth={1.75} />
+          )}
+          <span>
+            {isScreening
+              ? "Memproses..."
+              : stagedFiles.length > 0
+                ? `Mulai Penyaringan (${stagedFiles.length})`
+                : "Mulai Penyaringan"}
+          </span>
+        </button>
       </div>
-    </section>
+    </main>
   );
 }
