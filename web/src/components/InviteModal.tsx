@@ -133,7 +133,7 @@ export function InviteModal({
           <button
             type="button"
             onClick={() => void handleCopy()}
-            className="inline-flex h-9 items-center gap-1.5 rounded-md bg-zinc-900 px-4 text-[13px] font-medium text-white hover:bg-zinc-800"
+            className="btn-primary inline-flex h-9 items-center gap-1.5 rounded-lg px-4 text-[13px] font-semibold transition-all"
           >
             {copyStatus === "copied" ? (
               <>

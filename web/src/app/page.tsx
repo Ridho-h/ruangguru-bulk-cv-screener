@@ -263,7 +263,7 @@ export default function ScreeningWorkspacePage() {
   const showResultsView = isScreening || Boolean(report);
 
   return (
-    <div className="min-h-screen bg-white text-zinc-950">
+    <div className="min-h-screen bg-[#F3F5F8] text-slate-900">
       {showResultsView ? (
         <TopBar
           presets={ROLE_PRESETS}
@@ -309,6 +309,7 @@ export default function ScreeningWorkspacePage() {
           presets={ROLE_PRESETS}
           selectedPresetId={selectedPresetId}
           roleTitle={roleTitle}
+          mustHaveText={mustHaveText}
           stagedFiles={stagedFiles}
           isLoadingSamples={isLoadingSamples}
           isScreening={isScreening}

@@ -3,10 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
+  Award,
   Check,
+  CheckCircle2,
   ChevronRight,
+  Clock,
   Mail,
   Search,
+  Users,
   X,
 } from "lucide-react";
 import type {
@@ -34,6 +38,22 @@ const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
   { value: "Medium", label: "Sedang" },
   { value: "Low", label: "Rendah" },
 ];
+
+const AVATAR_TONES = [
+  "bg-blue-50 text-blue-700 ring-blue-200/70",
+  "bg-emerald-50 text-emerald-700 ring-emerald-200/70",
+  "bg-amber-50 text-amber-800 ring-amber-200/70",
+  "bg-indigo-50 text-indigo-700 ring-indigo-200/70",
+  "bg-rose-50 text-rose-700 ring-rose-200/70",
+];
+
+function getAvatarTone(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 31 + name.charCodeAt(i)) | 0;
+  }
+  return AVATAR_TONES[Math.abs(hash) % AVATAR_TONES.length];
+}
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -103,167 +123,245 @@ export function CandidatesTable({
   }, [report, query, filter]);
 
   const topCandidate = report?.candidates[0] ?? null;
+  const avgScore =
+    report && report.candidates.length > 0
+      ? Math.round(
+          report.candidates.reduce((sum, c) => sum + c.overallScore, 0) /
+            report.candidates.length,
+        )
+      : 0;
 
   return (
-    <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6">
-      {/* Summary Strip */}
+    <main className="mx-auto max-w-[1220px] space-y-6 px-4 py-7 sm:px-6">
+      {/* 4 Elevated Executive Summary Cards */}
       {report && !isScreening ? (
-        <div className="mb-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-zinc-200 pb-4 text-[13px]">
-          <div className="flex items-baseline gap-2">
-            <span className="text-zinc-500">Peringkat 1:</span>
-            <span className="font-semibold text-zinc-950">
+        <section
+          aria-label="Ringkasan hasil penyaringan"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          <div className="surface-card rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] font-medium text-slate-500">
+                Peringkat 1
+              </span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
+                <Award className="h-3.5 w-3.5" strokeWidth={1.85} />
+              </span>
+            </div>
+            <div className="mt-2 truncate text-[16px] font-bold tracking-tight text-slate-900">
+              {topCandidate ? topCandidate.candidateName : "-"}
+            </div>
+            <div className="mt-0.5 text-[12px] text-slate-500 tabular-nums">
               {topCandidate
-                ? `${topCandidate.candidateName} (${topCandidate.overallScore}/100)`
-                : "-"}
-            </span>
+                ? `Skor ${topCandidate.overallScore}/100 · ${topCandidate.location}`
+                : "Belum ada kandidat"}
+            </div>
           </div>
-          <span
-            className="hidden h-3.5 w-px bg-zinc-200 sm:inline-block"
-            aria-hidden="true"
-          />
-          <div className="flex items-baseline gap-2 tabular-nums">
-            <span className="text-zinc-500">Direkomendasikan:</span>
-            <span className="font-semibold text-emerald-700">
-              {report.recommendedCount} dari {report.totalScreened}
-            </span>
+
+          <div className="surface-card rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] font-medium text-slate-500">
+                Direkomendasikan
+              </span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+                <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.85} />
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline gap-1.5 tabular-nums">
+              <span className="text-[22px] font-bold tracking-tight text-emerald-700">
+                {report.recommendedCount}
+              </span>
+              <span className="text-[13px] font-medium text-slate-400">
+                / {report.totalScreened} kandidat
+              </span>
+            </div>
+            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+              <div
+                className="h-full rounded-full bg-emerald-600"
+                style={{
+                  width: `${
+                    report.totalScreened > 0
+                      ? Math.round(
+                          (report.recommendedCount / report.totalScreened) * 100,
+                        )
+                      : 0
+                  }%`,
+                }}
+              />
+            </div>
           </div>
-          <span
-            className="hidden h-3.5 w-px bg-zinc-200 sm:inline-block"
-            aria-hidden="true"
-          />
-          <div className="flex items-baseline gap-2 tabular-nums">
-            <span className="text-zinc-500">Waktu proses:</span>
-            <span className="font-medium text-zinc-900">
-              {(report.durationMs / 1000).toFixed(1)} dtk
-            </span>
+
+          <div className="surface-card rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] font-medium text-slate-500">
+                Rata-rata Skor
+              </span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                <Users className="h-3.5 w-3.5" strokeWidth={1.85} />
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline gap-1.5 tabular-nums">
+              <span className="text-[22px] font-bold tracking-tight text-slate-900">
+                {avgScore}
+              </span>
+              <span className="text-[13px] font-medium text-slate-400">
+                / 100
+              </span>
+            </div>
+            <div className="mt-0.5 text-[12px] text-slate-500 tabular-nums">
+              Dari {report.totalScreened} CV yang dinilai
+            </div>
           </div>
-        </div>
+
+          <div className="surface-card rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] font-medium text-slate-500">
+                Waktu Proses
+              </span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                <Clock className="h-3.5 w-3.5" strokeWidth={1.85} />
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline gap-1 tabular-nums">
+              <span className="text-[22px] font-bold tracking-tight text-slate-900">
+                {(report.durationMs / 1000).toFixed(1)}
+              </span>
+              <span className="text-[13px] font-medium text-slate-400">
+                detik
+              </span>
+            </div>
+            <div className="mt-0.5 truncate text-[12px] text-slate-500">
+              Posisi {roleTitle}
+            </div>
+          </div>
+        </section>
       ) : null}
 
-      {/* Table Header & Controls */}
-      <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2.5">
-          <h2 className="text-[16px] font-semibold tracking-tight text-zinc-950">
-            Daftar Kandidat
-          </h2>
+      {/* Elevated Table Sheet */}
+      <section className="surface-card overflow-hidden rounded-2xl">
+        {/* Table Toolbar */}
+        <div className="flex flex-col gap-3 border-b border-slate-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-[16px] font-bold tracking-tight text-slate-900">
+              Daftar Kandidat
+            </h2>
+            {report && !isScreening ? (
+              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[12px] font-semibold text-slate-700 tabular-nums">
+                {filteredCandidates.length}
+              </span>
+            ) : null}
+            {isScreening ? (
+              <span className="text-[13px] font-medium text-blue-700 tabular-nums">
+                Menilai {stagedCount || 6} CV untuk {roleTitle}...
+              </span>
+            ) : null}
+          </div>
+
           {report && !isScreening ? (
-            <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[12px] font-medium text-zinc-600 tabular-nums">
-              {filteredCandidates.length}
-            </span>
-          ) : null}
-          {isScreening ? (
-            <span className="text-[13px] text-zinc-600 tabular-nums">
-              Menilai {stagedCount || 6} CV untuk {roleTitle}...
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative w-full sm:w-56">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+                  strokeWidth={1.75}
+                />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Cari nama atau lokasi..."
+                  aria-label="Cari kandidat"
+                  className="h-8.5 w-full rounded-lg border border-slate-200 bg-slate-50 pl-8.5 pr-3 text-[16px] text-slate-900 placeholder:text-slate-400 transition-colors focus:border-blue-600 focus:bg-white focus:outline-none sm:text-[13px]"
+                />
+              </div>
+
+              <div
+                className="inline-flex max-w-full flex-wrap items-center gap-0.5 rounded-lg border border-slate-200 bg-slate-100/80 p-0.5"
+                role="group"
+                aria-label="Filter kecocokan kandidat"
+              >
+                {FILTER_OPTIONS.map((opt) => {
+                  const active = filter === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setFilter(opt.value)}
+                      className={`rounded-md px-2.5 py-1 text-[12px] font-medium transition-all duration-150 ${
+                        active
+                          ? "bg-white text-slate-900 shadow-2xs ring-1 ring-slate-200/80"
+                          : "text-slate-600 hover:text-slate-950"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           ) : null}
         </div>
 
-        {report && !isScreening ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative w-full sm:w-56">
-              <Search
-                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400"
-                strokeWidth={1.75}
-              />
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Cari nama atau lokasi..."
-                aria-label="Cari kandidat"
-                className="h-8 w-full rounded-md border border-zinc-200 bg-white pl-8 pr-2.5 text-[16px] text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none sm:text-[13px]"
-              />
-            </div>
-
-            <div
-              className="inline-flex max-w-full flex-wrap items-center gap-0.5 rounded-md border border-zinc-200 bg-zinc-50 p-0.5"
-              role="group"
-              aria-label="Filter kecocokan kandidat"
-            >
-              {FILTER_OPTIONS.map((opt) => {
-                const active = filter === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setFilter(opt.value)}
-                    className={`rounded px-2.5 py-1 text-[12px] font-medium transition-colors duration-150 ${
-                      active
-                        ? "bg-white text-zinc-950 shadow-2xs ring-1 ring-zinc-200"
-                        : "text-zinc-600 hover:text-zinc-950"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ) : null}
-      </div>
-
-      {/* Bounded-height Scrollable Table */}
-      <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white">
+        {/* Bounded-height Scrollable Table */}
         <div className="thin-scroll max-h-[360px] lg:max-h-[560px] overflow-x-auto overflow-y-auto">
-          <table className="w-full min-w-[820px] border-collapse text-left text-[13px]">
-            <thead className="sticky top-0 z-10 border-b border-zinc-200 bg-zinc-50 text-[12px] font-medium text-zinc-500">
+          <table className="w-full min-w-[840px] border-collapse text-left text-[13px]">
+            <thead className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50/95 text-[11px] font-semibold uppercase tracking-wider text-slate-500 backdrop-blur-xs">
               <tr>
-                <th scope="col" className="px-4 py-2.5">
+                <th scope="col" className="px-5 py-3">
                   Kandidat
                 </th>
-                <th scope="col" className="px-4 py-2.5">
+                <th scope="col" className="px-4 py-3">
                   Tahap
                 </th>
-                <th scope="col" className="px-4 py-2.5">
+                <th scope="col" className="px-4 py-3">
                   Lokasi
                 </th>
-                <th scope="col" className="px-4 py-2.5">
+                <th scope="col" className="px-4 py-3">
                   Kecocokan
                 </th>
-                <th scope="col" className="px-4 py-2.5">
+                <th scope="col" className="px-4 py-3">
                   Skor
                 </th>
-                <th scope="col" className="px-4 py-2.5">
+                <th scope="col" className="px-4 py-3">
                   Rekomendasi
                 </th>
-                <th scope="col" className="px-4 py-2.5 text-right">
+                <th scope="col" className="px-5 py-3 text-right">
                   Aksi
                 </th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-zinc-200 bg-white">
+            <tbody className="divide-y divide-slate-100 bg-white">
               {isScreening ? (
                 Array.from({
                   length: Math.min(Math.max(stagedCount || 6, 4), 6),
                 }).map((_, idx) => (
                   <tr key={`skeleton-${idx}`} className="animate-pulse">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-7 w-7 rounded-full bg-zinc-200" />
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-slate-200" />
                         <div className="space-y-1.5">
-                          <div className="h-3.5 w-32 rounded bg-zinc-200" />
-                          <div className="h-2.5 w-24 rounded bg-zinc-100" />
+                          <div className="h-3.5 w-32 rounded bg-slate-200" />
+                          <div className="h-2.5 w-24 rounded bg-slate-100" />
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="h-5 w-16 rounded-full bg-zinc-100" />
+                    <td className="px-4 py-3.5">
+                      <div className="h-5 w-16 rounded-md bg-slate-100" />
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="h-3.5 w-20 rounded bg-zinc-200" />
+                    <td className="px-4 py-3.5">
+                      <div className="h-3.5 w-20 rounded bg-slate-200" />
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="h-5 w-14 rounded-full bg-zinc-100" />
+                    <td className="px-4 py-3.5">
+                      <div className="h-5 w-14 rounded-md bg-slate-100" />
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="h-3.5 w-16 rounded bg-zinc-200" />
+                    <td className="px-4 py-3.5">
+                      <div className="h-3.5 w-20 rounded bg-slate-200" />
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="h-4 w-8 rounded bg-zinc-200" />
+                    <td className="px-4 py-3.5">
+                      <div className="h-4 w-8 rounded bg-slate-200" />
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="ml-auto h-7 w-28 rounded-md bg-zinc-100" />
+                    <td className="px-5 py-3.5 text-right">
+                      <div className="ml-auto h-7 w-32 rounded-md bg-slate-100" />
                     </td>
                   </tr>
                 ))
@@ -271,7 +369,7 @@ export function CandidatesTable({
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-6 py-10 text-center text-[13px] text-zinc-500"
+                    className="px-6 py-12 text-center text-[13px] text-slate-500"
                   >
                     Tidak ada kandidat yang berhasil dinilai pada sesi ini.
                     Periksa daftar file yang gagal di bawah.
@@ -281,7 +379,7 @@ export function CandidatesTable({
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-6 py-10 text-center text-[13px] text-zinc-500"
+                    className="px-6 py-12 text-center text-[13px] text-slate-500"
                   >
                     Tidak ada kandidat yang cocok dengan kata kunci atau filter
                     saat ini.
@@ -296,53 +394,55 @@ export function CandidatesTable({
                       key={candidateKey}
                       onClick={() => onSelectCandidate(candidate)}
                       className={`cursor-pointer transition-colors duration-150 ${
-                        isSelected ? "bg-zinc-50" : "hover:bg-zinc-50/70"
+                        isSelected
+                          ? "bg-blue-50/50"
+                          : "hover:bg-slate-50/90"
                       }`}
                     >
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2.5">
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
                           <span
-                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[11px] font-semibold text-zinc-700"
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ring-1 ${getAvatarTone(candidate.candidateName)}`}
                             aria-hidden="true"
                           >
                             {getInitials(candidate.candidateName)}
                           </span>
                           <div className="min-w-0">
-                            <p className="truncate font-medium text-zinc-950">
+                            <p className="truncate font-semibold text-slate-900">
                               {candidate.candidateName}
                             </p>
-                            <p className="max-w-[200px] truncate text-[11px] text-zinc-500">
+                            <p className="max-w-[200px] truncate text-[11px] text-slate-500">
                               {candidate.filename}
                             </p>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[12px] font-medium text-zinc-700">
+                      <td className="px-4 py-3.5">
+                        <span className="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[12px] font-medium text-slate-700">
                           {candidate.stage}
                         </span>
                       </td>
 
-                      <td className="px-4 py-3 text-zinc-600">
+                      <td className="px-4 py-3.5 text-slate-600">
                         {candidate.location}
                       </td>
 
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3.5">
                         <span
-                          className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[12px] font-medium ${matchPillClasses(candidate.matchLevel)}`}
+                          className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-[12px] font-semibold ${matchPillClasses(candidate.matchLevel)}`}
                         >
                           {matchLabel(candidate.matchLevel)}
                         </span>
                       </td>
 
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2 tabular-nums">
-                          <span className="w-12 font-semibold text-zinc-950">
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-2.5 tabular-nums">
+                          <span className="w-12 font-bold text-slate-900">
                             {candidate.overallScore}/100
                           </span>
                           <div
-                            className="hidden h-1.5 w-14 overflow-hidden rounded-full bg-zinc-200 md:block"
+                            className="hidden h-2 w-16 overflow-hidden rounded-full bg-slate-100 md:block"
                             aria-hidden="true"
                           >
                             <div
@@ -353,21 +453,21 @@ export function CandidatesTable({
                         </div>
                       </td>
 
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3.5">
                         {candidate.recommended ? (
-                          <span className="inline-flex items-center gap-1 text-[12px] font-medium text-emerald-700">
-                            <Check className="h-3.5 w-3.5" strokeWidth={2} />
+                          <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-emerald-700">
+                            <Check className="h-3.5 w-3.5" strokeWidth={2.25} />
                             <span>Ya</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[12px] font-medium text-zinc-500">
+                          <span className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-400">
                             <X className="h-3.5 w-3.5" strokeWidth={2} />
                             <span>Tidak</span>
                           </span>
                         )}
                       </td>
 
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-5 py-3.5 text-right">
                         <div className="inline-flex items-center justify-end gap-1.5">
                           <button
                             type="button"
@@ -375,13 +475,13 @@ export function CandidatesTable({
                               e.stopPropagation();
                               onInviteCandidate(candidate);
                             }}
-                            className={`inline-flex h-7 cursor-pointer items-center gap-1 rounded-md px-2.5 text-[12px] font-medium transition-all duration-150 active:scale-[0.97] ${
+                            className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-[12px] font-semibold transition-all duration-150 active:scale-[0.97] ${
                               candidate.recommended
-                                ? "bg-[#0F766E] text-white hover:bg-[#115E59] hover:shadow-xs"
-                                : "border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white"
+                                ? "btn-primary"
+                                : "border border-slate-300 bg-white text-slate-700 shadow-2xs hover:border-slate-900 hover:bg-slate-900 hover:text-white"
                             }`}
                           >
-                            <Mail className="h-3 w-3" strokeWidth={1.75} />
+                            <Mail className="h-3.5 w-3.5" strokeWidth={1.85} />
                             <span>Undang</span>
                           </button>
 
@@ -391,11 +491,11 @@ export function CandidatesTable({
                               e.stopPropagation();
                               onSelectCandidate(candidate);
                             }}
-                            className="inline-flex h-7 cursor-pointer items-center gap-0.5 rounded-md border border-zinc-200 bg-white px-2.5 text-[12px] font-medium text-zinc-800 transition-all duration-150 hover:border-zinc-400 hover:bg-zinc-100 active:scale-[0.97]"
+                            className="inline-flex h-8 cursor-pointer items-center gap-0.5 rounded-lg border border-slate-200 bg-white px-2.5 text-[12px] font-medium text-slate-700 shadow-2xs transition-all duration-150 hover:border-slate-400 hover:bg-slate-100 hover:text-slate-950 active:scale-[0.97]"
                           >
                             <span>Detail</span>
                             <ChevronRight
-                              className="h-3.5 w-3.5 text-zinc-400"
+                              className="h-3.5 w-3.5 text-slate-400"
                               strokeWidth={1.75}
                             />
                           </button>
@@ -408,15 +508,15 @@ export function CandidatesTable({
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
 
       {/* Failed / Unreadable Files Notice */}
       {report && report.failedFiles.length > 0 && !isScreening ? (
         <div
           role="status"
-          className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-900"
+          className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-900 shadow-2xs"
         >
-          <div className="flex items-center gap-2 font-medium">
+          <div className="flex items-center gap-2 font-semibold">
             <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={1.75} />
             <span>
               {report.failedFiles.length} file tidak dapat diproses:

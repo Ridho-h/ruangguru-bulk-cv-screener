@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Download, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Briefcase, Download, SlidersHorizontal } from "lucide-react";
 import type { RolePreset } from "@/lib/types";
 
 interface TopBarProps {
@@ -25,35 +25,33 @@ export function TopBar({
   onBackToUpload,
 }: TopBarProps) {
   return (
-    <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/95 backdrop-blur-xs">
-      <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between gap-3 px-4 sm:px-6">
+    <header className="sticky top-0 z-30 border-b border-slate-200/90 bg-white/90 shadow-[0_1px_2px_rgba(15,23,42,0.03)] backdrop-blur-md">
+      <div className="mx-auto flex h-15 max-w-[1220px] items-center justify-between gap-3 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={onBackToUpload}
-            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2.5 text-[13px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
+            className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-700 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 active:scale-[0.98]"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
             <span>Unggah Ulang</span>
           </button>
 
           <span
-            className="hidden h-4 w-px bg-zinc-200 sm:inline-block"
+            className="hidden h-5 w-px bg-slate-200 sm:inline-block"
             aria-hidden="true"
           />
 
           <div className="hidden items-center gap-2 sm:flex">
-            <label
-              htmlFor="role-preset-select"
-              className="text-[12px] font-medium text-zinc-500"
-            >
-              Posisi
-            </label>
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-50 text-blue-700">
+              <Briefcase className="h-3.5 w-3.5" strokeWidth={1.85} />
+            </span>
             <select
               id="role-preset-select"
+              aria-label="Posisi lowongan"
               value={selectedPresetId}
               onChange={(e) => onSelectPreset(e.target.value)}
-              className="h-8 rounded-md border border-zinc-200 bg-white px-2.5 pr-7 text-[13px] font-medium text-zinc-900 transition-colors hover:border-zinc-300"
+              className="h-8.5 rounded-lg border border-slate-200 bg-slate-50/70 px-2.5 pr-7 text-[13px] font-semibold text-slate-900 transition-colors hover:border-slate-300 hover:bg-white"
             >
               {presets.map((preset) => (
                 <option key={preset.id} value={preset.id}>
@@ -71,10 +69,10 @@ export function TopBar({
           <button
             type="button"
             onClick={onOpenCriteria}
-            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 text-[13px] font-medium text-zinc-800 transition-colors hover:bg-zinc-50"
+            className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-700 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 active:scale-[0.98]"
           >
             <SlidersHorizontal
-              className="h-3.5 w-3.5 text-zinc-500"
+              className="h-3.5 w-3.5 text-slate-500"
               strokeWidth={1.75}
             />
             <span>Kriteria</span>
@@ -85,10 +83,10 @@ export function TopBar({
               type="button"
               onClick={onExportCsv}
               aria-label="Unduh CSV"
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2.5 text-[13px] font-medium text-zinc-800 transition-colors hover:bg-zinc-50 sm:px-3"
+              className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-700 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 active:scale-[0.98]"
             >
               <Download
-                className="h-3.5 w-3.5 text-zinc-500"
+                className="h-3.5 w-3.5 text-slate-500"
                 strokeWidth={1.75}
               />
               <span className="hidden sm:inline">Unduh CSV</span>
