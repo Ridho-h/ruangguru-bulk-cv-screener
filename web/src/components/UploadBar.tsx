@@ -102,8 +102,8 @@ export function UploadBar({
 
   return (
     <main className="mx-auto flex min-h-screen max-w-[1040px] items-center justify-center px-4 py-8 sm:px-6">
-      {/* Unified Symmetric 50/50 Split Workspace Card */}
-      <div className="surface-card grid w-full grid-cols-1 overflow-hidden rounded-2xl lg:min-h-[460px] lg:grid-cols-2 lg:divide-x lg:divide-slate-200">
+      {/* Unified Symmetric 50/50 Split Workspace Card (locked desktop height: zero layout jump) */}
+      <div className="surface-card grid w-full grid-cols-1 overflow-hidden rounded-2xl lg:h-[468px] lg:grid-cols-2 lg:divide-x lg:divide-slate-200">
         {/* Left Half (50%): Brand + Position & Criteria */}
         <div className="flex flex-col justify-between bg-slate-50/75 p-6 sm:p-8">
           <div>
@@ -195,8 +195,8 @@ export function UploadBar({
         </div>
 
         {/* Right Half (50%): Dropzone + Staged Files + Action Footer */}
-        <div className="flex flex-col justify-between bg-white">
-          <div className="flex flex-1 flex-col justify-center p-6 sm:p-8">
+        <div className="flex min-h-0 flex-col justify-between bg-white">
+          <div className="flex min-h-0 flex-1 flex-col justify-center p-6 sm:p-8">
             <input
               ref={inputRef}
               type="file"
@@ -227,8 +227,8 @@ export function UploadBar({
                   inputRef.current?.click();
                 }
               }}
-              className={`rounded-xl border-2 border-dashed transition-all duration-150 ${
-                hasFiles ? "px-4 py-3.5" : "px-6 py-14 text-center"
+              className={`rounded-xl border-2 border-dashed transition-colors duration-150 ${
+                hasFiles ? "px-4 py-3" : "px-6 py-14 text-center"
               } ${
                 isDragging
                   ? "border-blue-600 bg-blue-50/60"
@@ -273,7 +273,7 @@ export function UploadBar({
             </div>
 
             {hasFiles ? (
-              <div className="mt-4">
+              <div className="mt-4 flex min-h-0 flex-1 flex-col">
                 <div className="flex items-center justify-between gap-2 text-[12px]">
                   <span className="font-semibold text-slate-800 tabular-nums">
                     {stagedFiles.length} file siap dinilai
@@ -288,7 +288,7 @@ export function UploadBar({
                     <span>Hapus semua</span>
                   </button>
                 </div>
-                <div className="thin-scroll mt-2 max-h-[210px] divide-y divide-slate-100 overflow-y-auto rounded-xl border border-slate-200 bg-white">
+                <div className="thin-scroll mt-2 flex-1 max-h-[220px] divide-y divide-slate-100 overflow-y-auto rounded-xl border border-slate-200 bg-white">
                   {stagedFiles.map((item) => (
                     <div
                       key={item.id}
