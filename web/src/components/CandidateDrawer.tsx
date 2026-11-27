@@ -50,6 +50,7 @@ export function CandidateDrawer({
   const isOpen = Boolean(candidate);
   const [displayCandidate, setDisplayCandidate] =
     useState<ScreenedCandidate | null>(candidate);
+  const [visible, setVisible] = useState(false);
 
   const panelRef = useRef<HTMLElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -62,8 +63,17 @@ export function CandidateDrawer({
     if (candidate) {
       setDisplayCandidate(candidate);
       if (scrollRef.current) scrollRef.current.scrollTop = 0;
+      let raf2 = 0;
+      const raf1 = window.requestAnimationFrame(() => {
+        raf2 = window.requestAnimationFrame(() => setVisible(true));
+      });
+      return () => {
+        window.cancelAnimationFrame(raf1);
+        window.cancelAnimationFrame(raf2);
+      };
     } else {
-      const timer = window.setTimeout(() => setDisplayCandidate(null), 190);
+      setVisible(false);
+      const timer = window.setTimeout(() => setDisplayCandidate(null), 210);
       return () => window.clearTimeout(timer);
     }
   }, [candidate]);
@@ -110,8 +120,8 @@ export function CandidateDrawer({
 
   return (
     <div
-      className={`fixed inset-0 z-40 flex justify-end transition-opacity duration-[180ms] ${
-        isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+      className={`fixed inset-0 z-40 flex justify-end transition-opacity duration-200 ${
+        visible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
       }`}
       role="dialog"
       aria-modal={isOpen}
@@ -134,8 +144,8 @@ export function CandidateDrawer({
 
       <aside
         ref={panelRef}
-        className={`relative z-10 flex h-full w-full max-w-[520px] flex-col border-l border-slate-200 bg-white shadow-2xl transition-transform duration-[180ms] ease-out ${
-          isOpen ? "translate-x-0" : "translate-x-full"
+        className={`relative z-10 flex h-full w-full max-w-[520px] flex-col border-l border-slate-200 bg-white shadow-2xl transition-transform duration-200 ease-out ${
+          visible ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Tinted Header Band */}
