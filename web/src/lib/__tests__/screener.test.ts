@@ -140,6 +140,7 @@ describe("normalizeEvaluation (Review Focus #3)", () => {
     expect(normalized.location).toBe("Tidak tercantum");
     expect(normalized.overallScore).toBe(100);
     expect(normalized.experienceScore).toBe(0);
+    expect(normalized.recommended).toBe(true);
     expect(normalized.interviewFocusAreas).toHaveLength(3);
 
     const fromEmptyName = normalizeEvaluation(
@@ -159,6 +160,7 @@ describe("normalizeEvaluation (Review Focus #3)", () => {
       "02_Rizky_Mahendra_ML_Engineer.pdf",
     );
     expect(fromEmptyName.candidateName).toBe("Rizky Mahendra");
+    expect(fromEmptyName.recommended).toBe(false);
   });
 });
 
