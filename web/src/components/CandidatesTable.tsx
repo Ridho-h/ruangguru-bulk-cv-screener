@@ -375,10 +375,10 @@ export function CandidatesTable({
                               e.stopPropagation();
                               onInviteCandidate(candidate);
                             }}
-                            className={`inline-flex h-7 items-center gap-1 rounded-md px-2.5 text-[12px] font-medium transition-colors duration-150 ${
+                            className={`inline-flex h-7 cursor-pointer items-center gap-1 rounded-md px-2.5 text-[12px] font-medium transition-all duration-150 active:scale-[0.97] ${
                               candidate.recommended
-                                ? "bg-zinc-900 text-white hover:bg-zinc-800"
-                                : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"
+                                ? "bg-[#0F766E] text-white hover:bg-[#115E59] hover:shadow-xs"
+                                : "border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white"
                             }`}
                           >
                             <Mail className="h-3 w-3" strokeWidth={1.75} />
@@ -391,7 +391,7 @@ export function CandidatesTable({
                               e.stopPropagation();
                               onSelectCandidate(candidate);
                             }}
-                            className="inline-flex h-7 items-center gap-0.5 rounded-md border border-zinc-200 bg-white px-2.5 text-[12px] font-medium text-zinc-800 transition-colors duration-150 hover:border-zinc-300 hover:bg-zinc-50"
+                            className="inline-flex h-7 cursor-pointer items-center gap-0.5 rounded-md border border-zinc-200 bg-white px-2.5 text-[12px] font-medium text-zinc-800 transition-all duration-150 hover:border-zinc-400 hover:bg-zinc-100 active:scale-[0.97]"
                           >
                             <span>Detail</span>
                             <ChevronRight

@@ -24,6 +24,13 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
+
 ::selection {
   background-color: #ccfbf1;
   color: #0f172a;

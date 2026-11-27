@@ -178,7 +178,7 @@ export function CandidateDrawer({
               type="button"
               tabIndex={isOpen ? 0 : -1}
               onClick={() => onInviteCandidate(displayCandidate)}
-              className="inline-flex h-8 items-center gap-1.5 rounded-md bg-zinc-900 px-3 text-[12px] font-medium text-white hover:bg-zinc-800"
+              className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md bg-[#0F766E] px-3 text-[12px] font-medium text-white transition-all duration-150 hover:bg-[#115E59] hover:shadow-xs active:scale-[0.97]"
             >
               <Mail className="h-3.5 w-3.5" strokeWidth={1.75} />
               <span>Undang</span>
