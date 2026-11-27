@@ -356,7 +356,6 @@ export default function ScreeningWorkspacePage() {
         presets={ROLE_PRESETS}
         selectedPresetId={selectedPresetId}
         roleTitle={roleTitle}
-        companyName={companyName}
         criteriaText={criteriaText}
         mustHaveText={mustHaveText}
         showRunScreening={showResultsView && stagedFiles.length > 0}
@@ -366,7 +365,6 @@ export default function ScreeningWorkspacePage() {
           setSelectedPresetId("custom");
           setRoleTitle(val);
         }}
-        onChangeCompanyName={setCompanyName}
         onChangeCriteriaText={(val) => {
           setSelectedPresetId("custom");
           setCriteriaText(val);

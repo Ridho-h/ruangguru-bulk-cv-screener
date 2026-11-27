@@ -9,14 +9,12 @@ interface CriteriaDrawerProps {
   presets: RolePreset[];
   selectedPresetId: string;
   roleTitle: string;
-  companyName: string;
   criteriaText: string;
   mustHaveText: string;
   showRunScreening?: boolean;
   isScreening?: boolean;
   onSelectPreset: (presetId: string) => void;
   onChangeRoleTitle: (val: string) => void;
-  onChangeCompanyName: (val: string) => void;
   onChangeCriteriaText: (val: string) => void;
   onChangeMustHaveText: (val: string) => void;
   onStartScreening?: () => void;
@@ -28,14 +26,12 @@ export function CriteriaDrawer({
   presets,
   selectedPresetId,
   roleTitle,
-  companyName,
   criteriaText,
   mustHaveText,
   showRunScreening = false,
   isScreening = false,
   onSelectPreset,
   onChangeRoleTitle,
-  onChangeCompanyName,
   onChangeCriteriaText,
   onChangeMustHaveText,
   onStartScreening,
@@ -44,6 +40,8 @@ export function CriteriaDrawer({
   const panelRef = useRef<HTMLElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) return;
@@ -55,7 +53,7 @@ export function CriteriaDrawer({
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key === "Tab" && panelRef.current) {
@@ -81,7 +79,7 @@ export function CriteriaDrawer({
       window.removeEventListener("keydown", onKeyDown);
       previousFocusRef.current?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   return (
     <div
@@ -155,42 +153,22 @@ export function CriteriaDrawer({
             </select>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="criteria-role-title"
-                className="block text-[12px] font-medium text-[#475569]"
-              >
-                Nama Posisi
-              </label>
-              <input
-                id="criteria-role-title"
-                type="text"
-                tabIndex={open ? 0 : -1}
-                value={roleTitle}
-                onChange={(e) => onChangeRoleTitle(e.target.value)}
-                placeholder="Contoh: Junior AI Engineer"
-                className="mt-1.5 h-9 w-full rounded-md border border-[#E6E9EF] bg-[#FFFFFF] px-3 text-[16px] text-[#0F172A] sm:text-[13px]"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="criteria-company"
-                className="block text-[12px] font-medium text-[#475569]"
-              >
-                Nama Perusahaan
-              </label>
-              <input
-                id="criteria-company"
-                type="text"
-                tabIndex={open ? 0 : -1}
-                value={companyName}
-                onChange={(e) => onChangeCompanyName(e.target.value)}
-                placeholder="Contoh: Ruangguru"
-                className="mt-1.5 h-9 w-full rounded-md border border-[#E6E9EF] bg-[#FFFFFF] px-3 text-[16px] text-[#0F172A] sm:text-[13px]"
-              />
-            </div>
+          <div>
+            <label
+              htmlFor="criteria-role-title"
+              className="block text-[12px] font-medium text-[#475569]"
+            >
+              Nama Posisi
+            </label>
+            <input
+              id="criteria-role-title"
+              type="text"
+              tabIndex={open ? 0 : -1}
+              value={roleTitle}
+              onChange={(e) => onChangeRoleTitle(e.target.value)}
+              placeholder="Contoh: Junior AI Engineer"
+              className="mt-1.5 h-9 w-full rounded-md border border-[#E6E9EF] bg-[#FFFFFF] px-3 text-[16px] text-[#0F172A] sm:text-[13px]"
+            />
           </div>
 
           <div>

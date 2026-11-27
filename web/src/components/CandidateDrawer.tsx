@@ -55,6 +55,8 @@ export function CandidateDrawer({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (candidate) {
@@ -76,7 +78,7 @@ export function CandidateDrawer({
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key === "Tab" && panelRef.current) {
@@ -102,7 +104,7 @@ export function CandidateDrawer({
       window.removeEventListener("keydown", onKeyDown);
       previousFocusRef.current?.focus?.();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!displayCandidate) return null;
 
