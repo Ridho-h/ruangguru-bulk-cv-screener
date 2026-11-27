@@ -263,17 +263,16 @@ export default function ScreeningWorkspacePage() {
   const showResultsView = isScreening || Boolean(report);
 
   return (
-    <div className="min-h-screen bg-[#F3F5F8] text-slate-900">
+    <div
+      className={`min-h-screen text-slate-900 ${
+        showResultsView ? "bg-white" : "bg-[#F3F5F8]"
+      }`}
+    >
       {showResultsView ? (
         <TopBar
-          presets={ROLE_PRESETS}
-          selectedPresetId={selectedPresetId}
-          roleTitle={roleTitle}
+          roleTitle={report?.roleTitle ?? roleTitle}
           isScreening={isScreening}
-          canScreen={stagedFiles.length > 0}
-          onSelectPreset={handleSelectPreset}
           onOpenCriteria={() => setCriteriaOpen(true)}
-          onStartScreening={handleStartScreening}
           onBackToUpload={handleBackToUpload}
         />
       ) : null}
@@ -345,6 +344,8 @@ export default function ScreeningWorkspacePage() {
         companyName={companyName}
         criteriaText={criteriaText}
         mustHaveText={mustHaveText}
+        showRunScreening={showResultsView && stagedFiles.length > 0}
+        isScreening={isScreening}
         onSelectPreset={handleSelectPreset}
         onChangeRoleTitle={(val) => {
           setSelectedPresetId("custom");
@@ -359,6 +360,7 @@ export default function ScreeningWorkspacePage() {
           setSelectedPresetId("custom");
           setMustHaveText(val);
         }}
+        onStartScreening={handleStartScreening}
         onClose={() => setCriteriaOpen(false)}
       />
 

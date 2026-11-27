@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import { Loader2, Play, X } from "lucide-react";
 import type { RolePreset } from "@/lib/types";
 
 interface CriteriaDrawerProps {
@@ -12,11 +12,14 @@ interface CriteriaDrawerProps {
   companyName: string;
   criteriaText: string;
   mustHaveText: string;
+  showRunScreening?: boolean;
+  isScreening?: boolean;
   onSelectPreset: (presetId: string) => void;
   onChangeRoleTitle: (val: string) => void;
   onChangeCompanyName: (val: string) => void;
   onChangeCriteriaText: (val: string) => void;
   onChangeMustHaveText: (val: string) => void;
+  onStartScreening?: () => void;
   onClose: () => void;
 }
 
@@ -28,11 +31,14 @@ export function CriteriaDrawer({
   companyName,
   criteriaText,
   mustHaveText,
+  showRunScreening = false,
+  isScreening = false,
   onSelectPreset,
   onChangeRoleTitle,
   onChangeCompanyName,
   onChangeCriteriaText,
   onChangeMustHaveText,
+  onStartScreening,
   onClose,
 }: CriteriaDrawerProps) {
   const panelRef = useRef<HTMLElement | null>(null);
@@ -225,14 +231,44 @@ export function CriteriaDrawer({
         </div>
 
         <div className="flex items-center justify-end gap-2 border-t border-[#E6E9EF] bg-[#F7F8FA] px-5 py-3.5">
-          <button
-            type="button"
-            tabIndex={open ? 0 : -1}
-            onClick={onClose}
-            className="btn-primary inline-flex h-9 items-center rounded-lg px-4 text-[13px] font-semibold transition-all"
-          >
-            Simpan Kriteria
-          </button>
+          {showRunScreening && onStartScreening ? (
+            <>
+              <button
+                type="button"
+                tabIndex={open ? 0 : -1}
+                onClick={onClose}
+                className="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white px-3.5 text-[13px] font-medium text-slate-700 transition-colors hover:bg-slate-50"
+              >
+                Tutup
+              </button>
+              <button
+                type="button"
+                tabIndex={open ? 0 : -1}
+                disabled={isScreening}
+                onClick={() => {
+                  onClose();
+                  onStartScreening();
+                }}
+                className="btn-primary inline-flex h-9 items-center gap-1.5 rounded-lg px-4 text-[13px] font-semibold transition-all disabled:opacity-50"
+              >
+                {isScreening ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
+                ) : (
+                  <Play className="h-3.5 w-3.5" strokeWidth={2} />
+                )}
+                <span>Mulai Screening</span>
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              tabIndex={open ? 0 : -1}
+              onClick={onClose}
+              className="btn-primary inline-flex h-9 items-center rounded-lg px-4 text-[13px] font-semibold transition-all"
+            >
+              Simpan Kriteria
+            </button>
+          )}
         </div>
       </aside>
     </div>

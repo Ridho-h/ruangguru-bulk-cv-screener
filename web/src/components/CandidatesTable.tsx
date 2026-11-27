@@ -122,11 +122,11 @@ export function CandidatesTable({
   }, [report, query, filter]);
 
   return (
-    <main className="mx-auto max-w-[1220px] space-y-4 px-4 py-5 sm:px-6">
-      {/* Elevated Table Sheet */}
-      <section className="surface-card overflow-hidden rounded-2xl">
+    <main className="mx-auto max-w-[1220px] px-4 sm:px-6">
+      {/* Unified Table Workspace (integrated directly on white background) */}
+      <section className="bg-white">
         {/* Table Toolbar */}
-        <div className="flex flex-col gap-3 border-b border-slate-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-b border-slate-200 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2.5">
             <h2 className="text-[16px] font-bold tracking-tight text-slate-900">
               Daftar Kandidat
@@ -138,7 +138,7 @@ export function CandidatesTable({
             ) : null}
             {isScreening ? (
               <span className="text-[13px] font-medium text-blue-700 tabular-nums">
-                Menilai {stagedCount || 6} CV untuk {roleTitle}...
+                Menilai {stagedCount || 10} CV untuk {roleTitle}...
               </span>
             ) : null}
           </div>
@@ -200,11 +200,11 @@ export function CandidatesTable({
         </div>
 
         {/* Bounded-height Scrollable Table (fits viewport cleanly, single scrollbar) */}
-        <div className="thin-scroll max-h-[360px] lg:max-h-[calc(100vh-188px)] overflow-x-auto overflow-y-auto overscroll-contain">
+        <div className="thin-scroll max-h-[360px] lg:max-h-[calc(100vh-140px)] overflow-x-auto overflow-y-auto overscroll-contain">
           <table className="w-full min-w-[840px] border-collapse text-left text-[13px]">
-            <thead className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50/95 text-[11px] font-semibold uppercase tracking-wider text-slate-500 backdrop-blur-xs">
+            <thead className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 text-[11px] font-semibold uppercase tracking-wider text-slate-500 backdrop-blur-xs">
               <tr>
-                <th scope="col" className="px-5 py-3">
+                <th scope="col" className="py-3 pr-4">
                   Kandidat
                 </th>
                 <th scope="col" className="px-4 py-3">
@@ -222,7 +222,7 @@ export function CandidatesTable({
                 <th scope="col" className="px-4 py-3">
                   Rekomendasi
                 </th>
-                <th scope="col" className="px-5 py-3 text-right">
+                <th scope="col" className="py-3 pl-4 text-right">
                   Aksi
                 </th>
               </tr>
@@ -297,7 +297,7 @@ export function CandidatesTable({
                           : "hover:bg-slate-50/90"
                       }`}
                     >
-                      <td className="px-5 py-3.5">
+                      <td className="py-3.5 pr-4">
                         <div className="flex items-center gap-3">
                           <span
                             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ring-1 ${getAvatarTone(candidate.candidateName)}`}
@@ -365,7 +365,7 @@ export function CandidatesTable({
                         )}
                       </td>
 
-                      <td className="px-5 py-3.5 text-right">
+                      <td className="py-3.5 pl-4 text-right">
                         <div className="inline-flex items-center justify-end gap-1.5">
                           <button
                             type="button"
