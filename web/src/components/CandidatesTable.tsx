@@ -3,14 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
-  Award,
   Check,
-  CheckCircle2,
   ChevronRight,
-  Clock,
   Mail,
   Search,
-  Users,
   X,
 } from "lucide-react";
 import type {
@@ -122,121 +118,8 @@ export function CandidatesTable({
     });
   }, [report, query, filter]);
 
-  const topCandidate = report?.candidates[0] ?? null;
-  const avgScore =
-    report && report.candidates.length > 0
-      ? Math.round(
-          report.candidates.reduce((sum, c) => sum + c.overallScore, 0) /
-            report.candidates.length,
-        )
-      : 0;
-
   return (
-    <main className="mx-auto max-w-[1220px] space-y-6 px-4 py-7 sm:px-6">
-      {/* 4 Elevated Executive Summary Cards */}
-      {report && !isScreening ? (
-        <section
-          aria-label="Ringkasan hasil penyaringan"
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
-        >
-          <div className="surface-card rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[12px] font-medium text-slate-500">
-                Peringkat 1
-              </span>
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
-                <Award className="h-3.5 w-3.5" strokeWidth={1.85} />
-              </span>
-            </div>
-            <div className="mt-2 truncate text-[16px] font-bold tracking-tight text-slate-900">
-              {topCandidate ? topCandidate.candidateName : "-"}
-            </div>
-            <div className="mt-0.5 text-[12px] text-slate-500 tabular-nums">
-              {topCandidate
-                ? `Skor ${topCandidate.overallScore}/100 · ${topCandidate.location}`
-                : "Belum ada kandidat"}
-            </div>
-          </div>
-
-          <div className="surface-card rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[12px] font-medium text-slate-500">
-                Direkomendasikan
-              </span>
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
-                <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.85} />
-              </span>
-            </div>
-            <div className="mt-2 flex items-baseline gap-1.5 tabular-nums">
-              <span className="text-[22px] font-bold tracking-tight text-emerald-700">
-                {report.recommendedCount}
-              </span>
-              <span className="text-[13px] font-medium text-slate-400">
-                / {report.totalScreened} kandidat
-              </span>
-            </div>
-            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-              <div
-                className="h-full rounded-full bg-emerald-600"
-                style={{
-                  width: `${
-                    report.totalScreened > 0
-                      ? Math.round(
-                          (report.recommendedCount / report.totalScreened) * 100,
-                        )
-                      : 0
-                  }%`,
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="surface-card rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[12px] font-medium text-slate-500">
-                Rata-rata Skor
-              </span>
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                <Users className="h-3.5 w-3.5" strokeWidth={1.85} />
-              </span>
-            </div>
-            <div className="mt-2 flex items-baseline gap-1.5 tabular-nums">
-              <span className="text-[22px] font-bold tracking-tight text-slate-900">
-                {avgScore}
-              </span>
-              <span className="text-[13px] font-medium text-slate-400">
-                / 100
-              </span>
-            </div>
-            <div className="mt-0.5 text-[12px] text-slate-500 tabular-nums">
-              Dari {report.totalScreened} CV yang dinilai
-            </div>
-          </div>
-
-          <div className="surface-card rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[12px] font-medium text-slate-500">
-                Waktu Proses
-              </span>
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                <Clock className="h-3.5 w-3.5" strokeWidth={1.85} />
-              </span>
-            </div>
-            <div className="mt-2 flex items-baseline gap-1 tabular-nums">
-              <span className="text-[22px] font-bold tracking-tight text-slate-900">
-                {(report.durationMs / 1000).toFixed(1)}
-              </span>
-              <span className="text-[13px] font-medium text-slate-400">
-                detik
-              </span>
-            </div>
-            <div className="mt-0.5 truncate text-[12px] text-slate-500">
-              Posisi {roleTitle}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
+    <main className="mx-auto max-w-[1220px] space-y-5 px-4 py-6 sm:px-6">
       {/* Elevated Table Sheet */}
       <section className="surface-card overflow-hidden rounded-2xl">
         {/* Table Toolbar */}
