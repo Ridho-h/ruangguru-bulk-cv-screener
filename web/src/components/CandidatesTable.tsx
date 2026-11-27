@@ -122,7 +122,7 @@ export function CandidatesTable({
   }, [report, query, filter]);
 
   return (
-    <main className="mx-auto max-w-[1220px] px-4 sm:px-6">
+    <main className="mx-auto w-full max-w-[1600px] px-4 sm:px-8">
       {/* Unified Table Workspace (integrated directly on white background) */}
       <section className="bg-white">
         {/* Table Toolbar */}

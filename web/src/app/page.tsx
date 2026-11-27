@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { AlertCircle, X } from "lucide-react";
+import { AlertCircle, Loader2, X } from "lucide-react";
 import { CandidateDrawer } from "@/components/CandidateDrawer";
 import { CandidatesTable } from "@/components/CandidatesTable";
 import { CriteriaDrawer } from "@/components/CriteriaDrawer";
@@ -260,7 +260,7 @@ export default function ScreeningWorkspacePage() {
     URL.revokeObjectURL(url);
   }, [report]);
 
-  const showResultsView = isScreening || Boolean(report);
+  const showResultsView = Boolean(report) && !isScreening;
 
   return (
     <div
@@ -278,7 +278,7 @@ export default function ScreeningWorkspacePage() {
       ) : null}
 
       {errorMessage ? (
-        <div className="mx-auto max-w-[1200px] px-4 pt-4 sm:px-6">
+        <div className="mx-auto max-w-[1600px] px-4 pt-4 sm:px-8">
           <div
             role="alert"
             className="flex items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-800"
@@ -302,7 +302,22 @@ export default function ScreeningWorkspacePage() {
         </div>
       ) : null}
 
-      {!showResultsView ? (
+      {isScreening ? (
+        <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-4 text-center">
+          <div className="surface-card w-full rounded-2xl px-8 py-10">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+              <Loader2 className="h-6 w-6 animate-spin" strokeWidth={2} />
+            </div>
+            <h2 className="mt-5 text-[17px] font-bold tracking-tight text-slate-900 tabular-nums">
+              Menilai {stagedFiles.length || 10} CV...
+            </h2>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-slate-600">
+              Membaca dokumen PDF dan menghitung skor kecocokan untuk posisi{" "}
+              <span className="font-semibold text-slate-900">{roleTitle}</span>.
+            </p>
+          </div>
+        </main>
+      ) : !showResultsView ? (
         <UploadBar
           presets={ROLE_PRESETS}
           selectedPresetId={selectedPresetId}

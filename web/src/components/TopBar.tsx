@@ -17,7 +17,7 @@ export function TopBar({
 }: TopBarProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
-      <div className="mx-auto flex h-14 max-w-[1220px] items-center justify-between gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center justify-between gap-3 px-4 sm:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
