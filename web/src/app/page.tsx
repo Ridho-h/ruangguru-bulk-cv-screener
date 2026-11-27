@@ -271,10 +271,6 @@ export default function ScreeningWorkspacePage() {
           roleTitle={roleTitle}
           onSelectPreset={handleSelectPreset}
           onOpenCriteria={() => setCriteriaOpen(true)}
-          canExport={Boolean(
-            report && report.candidates.length > 0 && !isScreening,
-          )}
-          onExportCsv={handleExportCsv}
           onBackToUpload={handleBackToUpload}
         />
       ) : null}
@@ -334,6 +330,7 @@ export default function ScreeningWorkspacePage() {
           }
           onSelectCandidate={(candidate) => setSelectedCandidate(candidate)}
           onInviteCandidate={(candidate) => setInviteCandidate(candidate)}
+          onExportCsv={handleExportCsv}
         />
       )}
 

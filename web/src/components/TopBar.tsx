@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Briefcase, Download, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Briefcase, SlidersHorizontal } from "lucide-react";
 import type { RolePreset } from "@/lib/types";
 
 interface TopBarProps {
@@ -9,8 +9,6 @@ interface TopBarProps {
   roleTitle: string;
   onSelectPreset: (presetId: string) => void;
   onOpenCriteria: () => void;
-  canExport: boolean;
-  onExportCsv: () => void;
   onBackToUpload: () => void;
 }
 
@@ -20,8 +18,6 @@ export function TopBar({
   roleTitle,
   onSelectPreset,
   onOpenCriteria,
-  canExport,
-  onExportCsv,
   onBackToUpload,
 }: TopBarProps) {
   return (
@@ -77,21 +73,6 @@ export function TopBar({
             />
             <span>Kriteria</span>
           </button>
-
-          {canExport ? (
-            <button
-              type="button"
-              onClick={onExportCsv}
-              aria-label="Unduh CSV"
-              className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-700 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 active:scale-[0.98]"
-            >
-              <Download
-                className="h-3.5 w-3.5 text-slate-500"
-                strokeWidth={1.75}
-              />
-              <span className="hidden sm:inline">Unduh CSV</span>
-            </button>
-          ) : null}
         </div>
       </div>
     </header>

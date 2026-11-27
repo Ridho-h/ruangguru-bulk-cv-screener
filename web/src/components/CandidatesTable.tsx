@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   Check,
   ChevronRight,
+  Download,
   Mail,
   Search,
   X,
@@ -25,6 +26,7 @@ interface CandidatesTableProps {
   selectedCandidateId: string | null;
   onSelectCandidate: (candidate: ScreenedCandidate) => void;
   onInviteCandidate: (candidate: ScreenedCandidate) => void;
+  onExportCsv: () => void;
 }
 
 const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
@@ -88,6 +90,7 @@ export function CandidatesTable({
   selectedCandidateId,
   onSelectCandidate,
   onInviteCandidate,
+  onExportCsv,
 }: CandidatesTableProps) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterValue>("all");
@@ -180,6 +183,18 @@ export function CandidatesTable({
                   );
                 })}
               </div>
+
+              {report.candidates.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={onExportCsv}
+                  aria-label="Unduh CSV"
+                  title="Unduh CSV"
+                  className="inline-flex h-8.5 w-8.5 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 active:scale-[0.97]"
+                >
+                  <Download className="h-4 w-4" strokeWidth={1.85} />
+                </button>
+              ) : null}
             </div>
           ) : null}
         </div>

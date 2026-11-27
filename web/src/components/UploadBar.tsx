@@ -98,27 +98,31 @@ export function UploadBar({
     }
   };
 
+  const hasFiles = stagedFiles.length > 0;
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-[680px] flex-col justify-center px-4 py-12 sm:px-6">
-      {/* Centered Header */}
+    <main className="mx-auto flex min-h-screen max-w-[680px] flex-col justify-center px-4 py-6 sm:px-6">
+      {/* Compact Centered Header */}
       <div className="text-center">
-        <div className="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white shadow-[0_2px_10px_rgba(37,99,235,0.28)]">
-          <Briefcase className="h-5 w-5" strokeWidth={1.85} />
+        <div className="inline-flex items-center gap-2.5">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-[0_2px_8px_rgba(37,99,235,0.28)]">
+            <Briefcase className="h-4.5 w-4.5" strokeWidth={1.85} />
+          </span>
+          <h1 className="text-[22px] font-bold tracking-tight text-slate-900">
+            Penyaringan CV
+          </h1>
         </div>
-        <h1 className="mt-4 text-[26px] font-bold tracking-tight text-slate-900">
-          Penyaringan CV
-        </h1>
-        <p className="mx-auto mt-1.5 max-w-md text-[14px] leading-relaxed text-slate-600">
+        <p className="mx-auto mt-1.5 max-w-md text-[13px] leading-relaxed text-slate-600">
           Pilih posisi lowongan dan unggah kumpulan CV PDF untuk menyusun
           peringkat kandidat beserta draf undangan wawancara.
         </p>
       </div>
 
-      {/* Unified Symmetric Setup & Upload Sheet */}
-      <div className="surface-card mt-7 overflow-hidden rounded-2xl">
+      {/* Unified Symmetric Setup & Upload Sheet (fits cleanly above the fold) */}
+      <div className="surface-card mt-5 overflow-hidden rounded-2xl">
         {/* Band 1: Role & Criteria */}
-        <div className="border-b border-slate-200 bg-slate-50/80 px-6 py-4">
-          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="border-b border-slate-200 bg-slate-50/80 px-5 py-3.5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex-1">
               <label
                 htmlFor="setup-role-select"
@@ -131,7 +135,7 @@ export function UploadBar({
                 value={selectedPresetId}
                 onChange={(e) => onSelectPreset(e.target.value)}
                 disabled={isScreening}
-                className="mt-1.5 h-9.5 w-full rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-semibold text-slate-900 shadow-2xs transition-colors hover:border-slate-300 focus:border-blue-600 focus:outline-none"
+                className="mt-1 h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-semibold text-slate-900 shadow-2xs transition-colors hover:border-slate-300 focus:border-blue-600 focus:outline-none"
               >
                 {presets.map((preset) => (
                   <option key={preset.id} value={preset.id}>
@@ -148,7 +152,7 @@ export function UploadBar({
               type="button"
               onClick={onOpenCriteria}
               disabled={isScreening}
-              className="inline-flex h-9.5 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-[13px] font-medium text-slate-700 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 active:scale-[0.98] disabled:opacity-50"
+              className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-[13px] font-medium text-slate-700 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 active:scale-[0.98] disabled:opacity-50"
             >
               <SlidersHorizontal
                 className="h-3.5 w-3.5 text-slate-500"
@@ -159,7 +163,7 @@ export function UploadBar({
           </div>
 
           {mustHaveTags.length > 0 ? (
-            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
               <span className="mr-1 text-[11px] font-semibold text-slate-500">
                 Syarat utama:
               </span>
@@ -179,8 +183,8 @@ export function UploadBar({
           ) : null}
         </div>
 
-        {/* Band 2: PDF Dropzone + Staged File List */}
-        <div className="p-6">
+        {/* Band 2: Adaptive Dropzone (compacts automatically once files are staged) */}
+        <div className="p-5">
           <input
             ref={inputRef}
             type="file"
@@ -211,29 +215,54 @@ export function UploadBar({
                 inputRef.current?.click();
               }
             }}
-            className={`rounded-xl border-2 border-dashed px-6 py-10 text-center transition-all duration-150 ${
+            className={`rounded-xl border-2 border-dashed transition-all duration-150 ${
+              hasFiles ? "px-4 py-3" : "px-6 py-9 text-center"
+            } ${
               isDragging
                 ? "border-blue-600 bg-blue-50/60"
                 : "border-slate-200 bg-slate-50/70 hover:border-blue-400 hover:bg-blue-50/30"
             } ${isScreening ? "pointer-events-none opacity-60" : ""}`}
           >
-            <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-blue-600 shadow-xs">
-              <Upload className="h-5 w-5" strokeWidth={1.85} />
-            </div>
-            <p className="mt-3.5 text-[14px] font-semibold text-slate-900">
-              Tarik &amp; lepas file CV PDF ke sini
-            </p>
-            <p className="mt-1 text-[12.5px] text-slate-500">
-              atau{" "}
-              <span className="font-semibold text-blue-700 underline underline-offset-2">
-                pilih dari komputer
-              </span>{" "}
-              · Maksimal 30 file PDF (10 MB/file)
-            </p>
+            {hasFiles ? (
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-blue-600 shadow-2xs">
+                    <Upload className="h-4 w-4" strokeWidth={1.85} />
+                  </span>
+                  <div className="min-w-0 text-left">
+                    <p className="truncate text-[13px] font-semibold text-slate-900">
+                      Tambah file CV PDF lainnya
+                    </p>
+                    <p className="text-[11.5px] text-slate-500">
+                      Tarik &amp; lepas atau klik untuk memilih (maks. 30 file)
+                    </p>
+                  </div>
+                </div>
+                <span className="shrink-0 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[12px] font-medium text-blue-700 shadow-2xs">
+                  Pilih PDF
+                </span>
+              </div>
+            ) : (
+              <>
+                <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-blue-600 shadow-xs">
+                  <Upload className="h-5 w-5" strokeWidth={1.85} />
+                </div>
+                <p className="mt-3 text-[14px] font-semibold text-slate-900">
+                  Tarik &amp; lepas file CV PDF ke sini
+                </p>
+                <p className="mt-1 text-[12.5px] text-slate-500">
+                  atau{" "}
+                  <span className="font-semibold text-blue-700 underline underline-offset-2">
+                    pilih dari komputer
+                  </span>{" "}
+                  · Maksimal 30 file PDF (10 MB/file)
+                </p>
+              </>
+            )}
           </div>
 
-          {stagedFiles.length > 0 ? (
-            <div className="mt-5">
+          {hasFiles ? (
+            <div className="mt-3.5">
               <div className="flex items-center justify-between gap-2 text-[12px]">
                 <span className="font-semibold text-slate-800 tabular-nums">
                   {stagedFiles.length} file siap dinilai
@@ -248,15 +277,15 @@ export function UploadBar({
                   <span>Hapus semua</span>
                 </button>
               </div>
-              <div className="thin-scroll mt-2.5 max-h-44 divide-y divide-slate-100 overflow-y-auto rounded-xl border border-slate-200 bg-white">
+              <div className="thin-scroll mt-2 max-h-[156px] divide-y divide-slate-100 overflow-y-auto rounded-xl border border-slate-200 bg-white">
                 {stagedFiles.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between gap-3 px-3.5 py-2 text-[12px]"
+                    className="flex items-center justify-between gap-3 px-3 py-1.5 text-[12px]"
                   >
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-700">
-                        <FileText className="h-3.5 w-3.5" strokeWidth={1.85} />
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-700">
+                        <FileText className="h-3 w-3" strokeWidth={1.85} />
                       </span>
                       <span className="truncate font-medium text-slate-800">
                         {item.name}
@@ -271,9 +300,9 @@ export function UploadBar({
                           type="button"
                           onClick={() => onRemoveFile(item.id)}
                           aria-label={`Hapus ${item.name}`}
-                          className="inline-flex h-6 w-6 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                          className="inline-flex h-5.5 w-5.5 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
                         >
-                          <X className="h-3.5 w-3.5" strokeWidth={1.75} />
+                          <X className="h-3 w-3" strokeWidth={1.75} />
                         </button>
                       ) : null}
                     </div>
@@ -285,7 +314,7 @@ export function UploadBar({
         </div>
 
         {/* Band 3: Footer Action Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/80 px-6 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/80 px-5 py-3.5">
           <button
             type="button"
             onClick={onLoadSamples}
