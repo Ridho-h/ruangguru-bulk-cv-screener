@@ -1,14 +1,17 @@
 "use client";
 
-import { ArrowLeft, Briefcase, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Briefcase, Loader2, Play, SlidersHorizontal } from "lucide-react";
 import type { RolePreset } from "@/lib/types";
 
 interface TopBarProps {
   presets: RolePreset[];
   selectedPresetId: string;
   roleTitle: string;
+  isScreening: boolean;
+  canScreen: boolean;
   onSelectPreset: (presetId: string) => void;
   onOpenCriteria: () => void;
+  onStartScreening: () => void;
   onBackToUpload: () => void;
 }
 
@@ -16,8 +19,11 @@ export function TopBar({
   presets,
   selectedPresetId,
   roleTitle,
+  isScreening,
+  canScreen,
   onSelectPreset,
   onOpenCriteria,
+  onStartScreening,
   onBackToUpload,
 }: TopBarProps) {
   return (
@@ -64,14 +70,29 @@ export function TopBar({
         <div className="flex items-center gap-2">
           <button
             type="button"
+            disabled={isScreening}
             onClick={onOpenCriteria}
-            className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-700 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 active:scale-[0.98]"
+            className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-700 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 active:scale-[0.98] disabled:opacity-50"
           >
             <SlidersHorizontal
               className="h-3.5 w-3.5 text-slate-500"
               strokeWidth={1.75}
             />
             <span>Kriteria</span>
+          </button>
+
+          <button
+            type="button"
+            disabled={isScreening || !canScreen}
+            onClick={onStartScreening}
+            className="btn-primary inline-flex h-8.5 items-center gap-1.5 rounded-lg px-3.5 text-[13px] font-semibold transition-all disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+          >
+            {isScreening ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
+            ) : (
+              <Play className="h-3.5 w-3.5" strokeWidth={2} />
+            )}
+            <span>{isScreening ? "Memproses..." : "Mulai Screening"}</span>
           </button>
         </div>
       </div>

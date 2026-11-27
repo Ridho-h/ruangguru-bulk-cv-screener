@@ -1,4 +1,4 @@
-"""Generator 6 file PDF CV kandidat realistis Indonesia untuk demo Bulk CV Screening."""
+"""Generator 10 file PDF CV kandidat realistis Indonesia untuk demo Bulk CV Screening."""
 
 from __future__ import annotations
 
@@ -142,6 +142,94 @@ SAMPLE_PROFILES: list[dict[str, str]] = [
         "education": "D3 Administrasi Bisnis - Politeknik Negeri Semarang (2019 - 2022) | IPK 3.50 / 4.00",
         "skills": (
             "Microsoft Excel (VLOOKUP, Pivot Table), Microsoft Word, Google Sheets, Pengarsipan Dokumen, Administrasi Perkantoran, Komunikasi"
+        ),
+    },
+    {
+        "filename": "07_Aulia_Rahman_LLM_Engineer.pdf",
+        "name": "Aulia Rahman",
+        "headline": "AI & NLP Engineer | RAG, Fine-Tuning & Production API",
+        "contact": "Depok | aulia.rahman@email.id | github.com/auliarahman-ai",
+        "summary": (
+            "AI Engineer dengan pengalaman 2 tahun membangun sistem pencarian semantik, pipeline RAG multi-dokumen, "
+            "dan layanan inferensi LLM menggunakan Python, FastAPI, dan Docker untuk perusahaan SaaS B2B."
+        ),
+        "experience": (
+            "AI Engineer | PT Aksara Cerdas Indonesia (Mar 2024 - Sekarang)\n"
+            "- Merancang arsitektur RAG hybrid search (BM25 + vector embeddings) menggunakan Python, Gemini API, dan Qdrant untuk 50.000+ dokumen kontrak hukum (precision@5 mencapai 93%).\n"
+            "- Membangun REST API inferensi dengan FastAPI, Redis caching, dan evaluasi otomatis prompt memakai pytest.\n\n"
+            "Research Assistant NLP | Fakultas Ilmu Komputer UI (2023 - 2024)\n"
+            "- Melakukan fine-tuning model bahasa Indonesia (IndoBERT & LoRA) untuk ekstraksi entitas berita finansial."
+        ),
+        "education": "S1 Ilmu Komputer - Universitas Indonesia (2020 - 2024) | IPK 3.79 / 4.00",
+        "skills": (
+            "Python, Gemini API, Prompt Engineering, RAG, Qdrant, Vector Search, FastAPI, PyTorch, "
+            "Hugging Face, Docker, Redis, Git & GitHub, Evaluasi LLM"
+        ),
+    },
+    {
+        "filename": "08_Kevin_Wijaya_Data_Scientist.pdf",
+        "name": "Kevin Wijaya",
+        "headline": "Data Scientist | Predictive Modeling & Experimentation",
+        "contact": "Jakarta Pusat | kevin.wijaya@email.id | linkedin.com/in/kevinwijayads",
+        "summary": (
+            "Data Scientist dengan pengalaman 2,5 tahun membangun model prediksi churn, credit scoring, dan A/B testing "
+            "pada skala jutaan baris transaksi menggunakan Python, SQL, Scikit-learn, dan PyTorch."
+        ),
+        "experience": (
+            "Data Scientist | PT Dana Nusantara Fintech (Jan 2024 - Sekarang)\n"
+            "- Membangun model prediksi churn pelanggan dengan XGBoost & Logistic Regression (ROC-AUC 0.88), menurunkan churn bulanan sebesar 14%.\n"
+            "- Merancang eksperimen A/B testing untuk kampanye retensi dan membuat pipeline fitur SQL di BigQuery.\n\n"
+            "Junior Data Scientist | E-Commerce BelanjaKilat (2023 - 2024)\n"
+            "- Mengembangkan model rekomendasi produk berbasis collaborative filtering dengan Python, Pandas, dan PyTorch."
+        ),
+        "education": "S1 Matematika - Institut Teknologi Bandung (2019 - 2023) | IPK 3.85 / 4.00",
+        "skills": (
+            "Python, SQL, BigQuery, Pandas, NumPy, Scikit-learn, XGBoost, PyTorch, "
+            "Statistika, A/B Testing, Evaluasi Model & Eksperimen, Git"
+        ),
+    },
+    {
+        "filename": "09_Putri_Lestari_Backend_Engineer.pdf",
+        "name": "Putri Lestari",
+        "headline": "Backend Engineer | Python FastAPI, PostgreSQL & Cloud",
+        "contact": "Malang (Siap Remote/Hybrid) | putri.lestari@email.id | github.com/putrilestari-dev",
+        "summary": (
+            "Backend Engineer berpengalaman 3 tahun merancang API berkinerja tinggi dengan Python (FastAPI/Django), "
+            "optimasi query PostgreSQL, caching Redis, serta deployment container Docker di cloud."
+        ),
+        "experience": (
+            "Backend Engineer | PT KirimCepat Logistik (Feb 2023 - Sekarang)\n"
+            "- Membangun layanan REST API pelacakan paket dengan Python FastAPI yang menangani 1.200 request/detik dengan latensi p95 di bawah 120 ms.\n"
+            "- Mengoptimalkan skema indeks PostgreSQL dan queue Celery/Redis, memangkas biaya server sebesar 28%.\n"
+            "- Menyiapkan pipeline CI/CD GitHub Actions, Docker, dan automated testing pytest dengan coverage 85%.\n\n"
+            "Junior Software Engineer | Studio Aplikasi Karya (2022 - 2023)\n"
+            "- Mengembangkan modul autentikasi OAuth2 dan integrasi payment gateway menggunakan Django REST Framework."
+        ),
+        "education": "S1 Teknik Informatika - Universitas Brawijaya (2018 - 2022) | IPK 3.71 / 4.00",
+        "skills": (
+            "Python, FastAPI, Django, PostgreSQL, Redis, Docker, REST API, Microservices, "
+            "Celery, Pytest, CI/CD GitHub Actions, Linux, Git"
+        ),
+    },
+    {
+        "filename": "10_Hendra_Gunawan_QA_Tester.pdf",
+        "name": "Hendra Gunawan",
+        "headline": "Quality Assurance Manual Tester",
+        "contact": "Bekasi | hendra.gunawan@email.id | linkedin.com/in/hendragunawanqa",
+        "summary": (
+            "QA Manual Tester dengan pengalaman 2 tahun menyusun skenario uji fungsional, melakukan regression testing "
+            "aplikasi web dan mobile, serta mendokumentasikan laporan bug bersama tim produk."
+        ),
+        "experience": (
+            "QA Manual Tester | PT Solusi Retail Digital (Mei 2024 - Sekarang)\n"
+            "- Menulis 250+ test case fungsional dan menjalankan pengujian UAT sebelum rilis mingguan aplikasi kasir.\n"
+            "- Mencatat dan melacak status perbaikan bug menggunakan Jira serta melakukan pengecekan endpoint dasar di Postman.\n\n"
+            "IT Support & Tester Magang | CV Mitra Sistem (2023 - 2024)\n"
+            "- Membantu pengecekan tampilan antarmuka web dan menangani tiket kendala pengguna internal."
+        ),
+        "education": "S1 Sistem Informasi - Universitas Gunadarma (2019 - 2023) | IPK 3.38 / 4.00",
+        "skills": (
+            "Manual Testing, Test Case Design, UAT, Regression Testing, Jira, Trello, Postman dasar, Microsoft Excel"
         ),
     },
 ]

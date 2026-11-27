@@ -112,7 +112,7 @@ export function UploadBar({
                 <Briefcase className="h-5 w-5" strokeWidth={1.85} />
               </span>
               <h1 className="text-[22px] font-bold tracking-tight text-slate-900">
-                Penyaringan CV
+                Screening CV
               </h1>
             </div>
 
@@ -343,7 +343,7 @@ export function UploadBar({
                   strokeWidth={1.75}
                 />
               )}
-              <span>Muat 6 CV contoh</span>
+              <span>Muat 10 CV contoh</span>
             </button>
 
             <button
@@ -361,8 +361,8 @@ export function UploadBar({
                 {isScreening
                   ? "Memproses..."
                   : stagedFiles.length > 0
-                    ? `Mulai Penyaringan (${stagedFiles.length})`
-                    : "Mulai Penyaringan"}
+                    ? `Mulai Screening (${stagedFiles.length})`
+                    : "Mulai Screening"}
               </span>
             </button>
           </div>

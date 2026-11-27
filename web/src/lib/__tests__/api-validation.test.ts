@@ -3,13 +3,13 @@ import { POST as screenPost } from "../../app/api/screen/route";
 import { GET as samplesGet } from "../../app/api/samples/route";
 
 describe("GET /api/samples", () => {
-  it("lists all 6 bundled Indonesian sample CV PDFs", async () => {
+  it("lists all 10 bundled Indonesian sample CV PDFs", async () => {
     const res = await samplesGet();
     expect(res.status).toBe(200);
     const data = (await res.json()) as {
       samples: Array<{ name: string; url: string; sizeBytes: number }>;
     };
-    expect(data.samples).toHaveLength(6);
+    expect(data.samples).toHaveLength(10);
     expect(data.samples.every((s) => s.name.endsWith(".pdf"))).toBe(true);
     expect(data.samples.every((s) => s.sizeBytes > 0)).toBe(true);
   });

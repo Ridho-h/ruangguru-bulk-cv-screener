@@ -129,7 +129,7 @@ export async function POST(request: Request) {
 
     if (uploadedEntries.length === 0) {
       return NextResponse.json(
-        { error: "Unggah minimal 1 file CV berformat PDF atau muat 6 CV contoh." },
+        { error: "Unggah minimal 1 file CV berformat PDF atau muat 10 CV contoh." },
         { status: 400 },
       );
     }

@@ -10,7 +10,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Penyaringan CV — Evaluasi Kandidat Massal",
+  title: "Screening CV — Evaluasi Kandidat Massal",
   description:
     "Bandingkan dan beri peringkat CV kandidat secara terstruktur berdasarkan kriteria posisi.",
 };

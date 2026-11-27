@@ -36,7 +36,7 @@ export default function ScreeningWorkspacePage() {
   );
 
   const [stagedFiles, setStagedFiles] = useState<StagedCvFile[]>([]);
-  const [totalBundledSamples, setTotalBundledSamples] = useState<number>(6);
+  const [totalBundledSamples, setTotalBundledSamples] = useState<number>(10);
   const [isLoadingSamples, setIsLoadingSamples] = useState(false);
   const [isScreening, setIsScreening] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -112,7 +112,7 @@ export default function ScreeningWorkspacePage() {
     try {
       const res = await fetch("/api/samples");
       if (!res.ok) {
-        throw new Error("Gagal mengambil daftar 6 CV contoh.");
+        throw new Error("Gagal mengambil daftar 10 CV contoh.");
       }
       const data = (await res.json()) as {
         samples: Array<{ name: string; url: string; sizeBytes: number }>;
@@ -269,8 +269,11 @@ export default function ScreeningWorkspacePage() {
           presets={ROLE_PRESETS}
           selectedPresetId={selectedPresetId}
           roleTitle={roleTitle}
+          isScreening={isScreening}
+          canScreen={stagedFiles.length > 0}
           onSelectPreset={handleSelectPreset}
           onOpenCriteria={() => setCriteriaOpen(true)}
+          onStartScreening={handleStartScreening}
           onBackToUpload={handleBackToUpload}
         />
       ) : null}
